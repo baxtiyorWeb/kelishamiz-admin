@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.navbar a{
+    @apply hover:bg-blue-500; 
+}
+
+
+
+body{
+    background: #f1f5f9;
+}
+
+.main{
+    width: calc(100% - 300px);
+    position: absolute;
+    right: 0;
+    top: 70px;
+    background: #f1f5f9;
+    height: auto;
+    padding: 10px;
+    margin-bottom: 200px;
+}
+
+
+
+.announ_img img{
+    @apply hover:cursor-pointer
+}
+
+.user_info_view h2{
+    @apply flex items-center
+}
+.user_info_view h2 svg{
+    @apply text-2xl mr-4 text-blue-600
+}
+.user_info_view h2 span{
+    @apply font-bold mr-3
+}
+
+.categ_inp input{
+        @apply border p-2 rounded-xl w-[300px]
+
+}
