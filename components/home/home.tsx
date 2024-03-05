@@ -3,12 +3,7 @@ import CardProfit from '../cards_view/card_profit';
 import CardUsers from '../cards_view/card_users';
 import CardView from '../cards_view/card_view';
 import HomeTableData from './homeDataTable';
-
-type Props = {
-	props: React.ReactNode;
-};
-
-const Home = (props: Props) => {
+const Home = () => {
 	return (
 		<div className='h-screen '>
 			<div className='p-4 flex justify-evenly'>
