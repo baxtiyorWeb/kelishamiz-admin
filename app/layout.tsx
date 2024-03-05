@@ -21,7 +21,7 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={inter.className}>
 				<Providers>
-					<NextProgress />
+					<NextProgress height={5} showSpinner={false} />
 					<Header />
 					<Navbar />
 					<main className='main'>{children}</main>
