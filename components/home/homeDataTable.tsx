@@ -20,9 +20,8 @@ import {
 	User,
 } from '@nextui-org/react';
 import React from 'react';
-import { columns, statusOptions, users } from './data/hometabledata';
+import { columns, products, statusOptions } from './data/hometabledata';
 import { ChevronDownIcon } from './icons/ChevronDownIcon';
-import { PlusIcon } from './icons/PlusIcon';
 import { SearchIcon } from './icons/SearchIcon';
 import { VerticalDotsIcon } from './icons/VerticalDotsIcon';
 import { capitalize } from './utils/utils';
@@ -33,9 +32,16 @@ const statusColorMap: Record<string, ChipProps['color']> = {
 	vacation: 'warning',
 };
 
-const INITIAL_VISIBLE_COLUMNS = ['name', 'role', 'status', 'actions'];
+const INITIAL_VISIBLE_COLUMNS = [
+	'title',
+	'category',
+	'price',
+	'stock',
+	'publish',
+	'actions',
+];
 
-type User = (typeof users)[0];
+type User = (typeof products)[0];
 
 export default function HomeTableData() {
 	const [filterValue, setFilterValue] = React.useState('');
@@ -53,7 +59,7 @@ export default function HomeTableData() {
 	});
 	const [page, setPage] = React.useState(1);
 
-	const pages = Math.ceil(users.length / rowsPerPage);
+	const pages = Math.ceil(products.length / rowsPerPage);
 
 	const hasSearchFilter = Boolean(filterValue);
 
@@ -66,24 +72,24 @@ export default function HomeTableData() {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...users];
+		let filteredProducts = [...products];
 
 		if (hasSearchFilter) {
-			filteredUsers = filteredUsers.filter(user =>
-				user.name.toLowerCase().includes(filterValue.toLowerCase())
+			filteredProducts = filteredProducts.filter(user =>
+				user.title.toLowerCase().includes(filterValue.toLowerCase())
 			);
 		}
 		if (
 			statusFilter !== 'all' &&
 			Array.from(statusFilter).length !== statusOptions.length
 		) {
-			filteredUsers = filteredUsers.filter(user =>
+			filteredProducts = filteredProducts.filter(user =>
 				Array.from(statusFilter).includes(user.status)
 			);
 		}
 
-		return filteredUsers;
-	}, [users, filterValue, statusFilter]);
+		return filteredProducts;
+	}, [products, filterValue, statusFilter]);
 
 	const items = React.useMemo(() => {
 		const start = (page - 1) * rowsPerPage;
@@ -106,28 +112,21 @@ export default function HomeTableData() {
 		const cellValue = user[columnKey as keyof User];
 
 		switch (columnKey) {
-			case 'name':
+			case 'title':
 				return (
 					<User
-						avatarProps={{ radius: 'full', size: 'sm', src: user.avatar }}
+						avatarProps={{
+							radius: 'md',
+							size: 'md',
+							src: user.avatar,
+						}}
 						classNames={{
 							description: 'text-default-500',
 						}}
-						description={user.email}
 						name={cellValue}
-					>
-						{user.email}
-					</User>
+					></User>
 				);
-			case 'role':
-				return (
-					<div className='flex flex-col'>
-						<p className='text-bold text-small capitalize'>{cellValue}</p>
-						<p className='text-bold text-tiny capitalize text-default-500'>
-							{user.team}
-						</p>
-					</div>
-				);
+
 			case 'status':
 				return (
 					<Chip
@@ -136,7 +135,30 @@ export default function HomeTableData() {
 						size='sm'
 						variant='dot'
 					>
-						{cellValue}
+						{user.status}
+					</Chip>
+				);
+
+			case 'category':
+				return (
+					<Chip
+						className='capitalize border-none gap-1 text-default-900 text-[30px]'
+						color={statusColorMap[user.categories]}
+						size='sm'
+						variant='shadow'
+					>
+						<p className='text-[16px]'>{user.categories}</p>
+					</Chip>
+				);
+			case 'category':
+				return (
+					<Chip
+						className='capitalize border-none gap-1 text-default-900 text-[30px]'
+						color={statusColorMap[user.price]}
+						size='sm'
+						variant='faded'
+					>
+						<p className='text-[16px]'>{user.price}</p>
 					</Chip>
 				);
 			case 'actions':
@@ -180,7 +202,7 @@ export default function HomeTableData() {
 
 	const topContent = React.useMemo(() => {
 		return (
-			<div className='flex flex-col gap-4'>
+			<div className='flex flex-col  gap-4 '>
 				<div className='flex justify-between gap-3 items-end'>
 					<Input
 						isClearable
@@ -196,7 +218,7 @@ export default function HomeTableData() {
 						onClear={() => setFilterValue('')}
 						onValueChange={onSearchChange}
 					/>
-					<div className='flex gap-3'>
+					<div className='flex gap-3 '>
 						<Dropdown>
 							<DropdownTrigger className='hidden sm:flex'>
 								<Button
@@ -247,18 +269,11 @@ export default function HomeTableData() {
 								))}
 							</DropdownMenu>
 						</Dropdown>
-						<Button
-							className='bg-foreground text-background'
-							endContent={<PlusIcon />}
-							size='sm'
-						>
-							Add New
-						</Button>
 					</div>
 				</div>
 				<div className='flex justify-between items-center'>
 					<span className='text-default-400 text-small'>
-						Total {users.length} users
+						Total {products.length} products
 					</span>
 					<label className='flex items-center text-default-400 text-small'>
 						Rows per page:
@@ -266,9 +281,9 @@ export default function HomeTableData() {
 							className='bg-transparent outline-none text-default-400 text-small'
 							onChange={onRowsPerPageChange}
 						>
-							<option value='5'>5</option>
 							<option value='10'>10</option>
 							<option value='15'>15</option>
+							<option value='20'>20</option>
 						</select>
 					</label>
 				</div>
@@ -280,13 +295,13 @@ export default function HomeTableData() {
 		visibleColumns,
 		onSearchChange,
 		onRowsPerPageChange,
-		users.length,
+		products.length,
 		hasSearchFilter,
 	]);
 
 	const bottomContent = React.useMemo(() => {
 		return (
-			<div className='py-2 px-2 flex justify-between items-center'>
+			<div className='py-2 px-2 flex justify-between  items-center'>
 				<Pagination
 					showControls
 					classNames={{
@@ -299,7 +314,7 @@ export default function HomeTableData() {
 					variant='light'
 					onChange={setPage}
 				/>
-				<span className='text-small text-default-400'>
+				<span className='text-small text-default-400 '>
 					{selectedKeys === 'all'
 						? 'All items selected'
 						: `${selectedKeys.size} of ${items.length} selected`}
@@ -311,8 +326,9 @@ export default function HomeTableData() {
 	const classNames = React.useMemo(
 		() => ({
 			wrapper: ['max-h-[382px]', 'max-w-3xl'],
-			th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
+			th: [, 'text-default-500'],
 			td: [
+				,
 				// changing the rows border radius
 				// first
 				'group-data-[first=true]:first:before:rounded-none',
@@ -334,9 +350,10 @@ export default function HomeTableData() {
 			aria-label='Example table with custom cells, pagination and sorting'
 			bottomContent={bottomContent}
 			bottomContentPlacement='outside'
+			className='bg-white rounded-xl p-10'
 			checkboxesProps={{
 				classNames: {
-					wrapper: 'after:bg-foreground after:text-background text-background',
+					wrapper: 'after:bg-blue-500 after:text-background text-background ',
 				},
 			}}
 			classNames={classNames}
@@ -359,7 +376,7 @@ export default function HomeTableData() {
 					</TableColumn>
 				)}
 			</TableHeader>
-			<TableBody emptyContent={'No users found'} items={sortedItems}>
+			<TableBody emptyContent={'No products found'} items={sortedItems}>
 				{item => (
 					<TableRow key={item.id}>
 						{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
