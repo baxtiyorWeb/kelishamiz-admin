@@ -1,5 +1,17 @@
 import React from 'react';
-export const PlusIcon = ({ size = 24, width, height, ...props }) => (
+interface IProps {
+	size: number;
+	width: any;
+	height: any;
+	props: React.ReactNode;
+}
+
+export const PlusIcon: React.FC<IProps> = ({
+	size = 24,
+	width,
+	height,
+	...props
+}) => (
 	<svg
 		aria-hidden='true'
 		fill='none'
