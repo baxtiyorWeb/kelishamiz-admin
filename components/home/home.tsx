@@ -2,6 +2,7 @@ import CardsProudct from '../cards_view/card_product';
 import CardProfit from '../cards_view/card_profit';
 import CardUsers from '../cards_view/card_users';
 import CardView from '../cards_view/card_view';
+import ChartComponent from './chart/ChartComponent';
 import HomeTableData from './homeDataTable';
 const Home = () => {
 	return (
@@ -15,6 +16,7 @@ const Home = () => {
 				</div>
 			</div>
 			<div className='table-data'>
+				<ChartComponent />
 				<HomeTableData />
 			</div>
 		</div>
