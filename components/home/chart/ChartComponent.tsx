@@ -23,7 +23,14 @@ ChartJS.register(
 );
 const ChartComponent = () => {
 	const data = {
-		labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+		labels: [
+			'foydanalanuvchilar',
+			'mahsulotlar',
+			"ro'yxatdagilar",
+			'sotilganlar',
+			'foyda',
+			'zarar',
+		],
 		datasets: [
 			{
 				label: '# of Votes',
@@ -73,6 +80,7 @@ const ChartComponent = () => {
 							data: [30, 15, 34, 12, 35, 56, 87, 88, 98, 100, 10, 150],
 							backgroundColor: '#5A7BFC',
 							hoverBackgroundColor: '#ADBDFE',
+							label: "ro'yxatdan o'tishlar",
 						},
 					],
 				}}
