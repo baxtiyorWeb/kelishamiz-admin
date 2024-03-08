@@ -1,89 +1,83 @@
-import dynamic from 'next/dynamic';
+'use client';
+import {
+	ArcElement,
+	BarElement,
+	CategoryScale,
+	Chart as ChartJS,
+	Legend,
+	LinearScale,
+	PointElement,
+	Tooltip,
+} from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
 
-const Chart = dynamic(() => import('react-apexcharts'), {
-	ssr: false,
-});
-
-interface IOptions {
-	chart: {
-		type: string;
-		height: number;
-	};
-}
-
+// Register ChartJS components using ChartJS.register
+ChartJS.register(
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	BarElement,
+	ArcElement,
+	Legend,
+	Tooltip
+);
 const ChartComponent = () => {
-	const state = {
-		series: [
+	const data = {
+		labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+		datasets: [
 			{
-				name: 'Net Profit',
-				data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-			},
-			{
-				name: 'Revenue',
-				data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-			},
-			{
-				name: 'Free Cash Flow',
-				data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
+				label: '# of Votes',
+				data: [12, 19, 3, 5, 2, 3],
+				backgroundColor: [
+					'rgba(255, 99, 132, 0.2)',
+					'rgba(54, 162, 235, 0.2)',
+					'rgba(255, 206, 86, 0.2)',
+					'rgba(75, 192, 192, 0.2)',
+					'rgba(153, 102, 255, 0.2)',
+					'rgba(255, 159, 64, 0.2)',
+				],
+				borderColor: [
+					'rgba(255, 99, 132, 1)',
+					'rgba(54, 162, 235, 1)',
+					'rgba(255, 206, 86, 1)',
+					'rgba(75, 192, 192, 1)',
+					'rgba(153, 102, 255, 1)',
+					'rgba(255, 159, 64, 1)',
+				],
+				borderWidth: 1,
 			},
 		],
-		options: {
-			plotOptions: {
-				bar: {
-					horizontal: false,
-					columnWidth: '55%',
-					endingShape: 'rounded',
-				},
-			},
-			dataLabels: {
-				enabled: false,
-			},
-			stroke: {
-				show: true,
-				width: 2,
-				colors: ['transparent'],
-			},
-			xaxis: {
-				categories: [
-					'Feb',
-					'Mar',
-					'Apr',
-					'May',
-					'Jun',
-					'Jul',
-					'Aug',
-					'Sep',
-					'Oct',
-				],
-			},
-			yaxis: {
-				title: {
-					text: '$ (thousands)',
-				},
-			},
-			fill: {
-				opacity: 1,
-			},
-			tooltip: {
-				y: {
-					formatter: function (val: any) {
-						return '$ ' + val + ' thousands';
-					},
-				},
-			},
-		},
 	};
 	return (
-		<div>
-			<div id='chart'>
-				<Chart
-					options={state.options}
-					series={state.series}
-					type='bar'
-					height={350}
-				/>
-			</div>
-			<div id='html-dist'></div>
+		<div className=' h-[50vh] flex justify-between items-center'>
+			<Bar
+				width={750}
+				height={400}
+				data={{
+					labels: [
+						'Jan',
+						'Feb',
+						'Mar',
+						'Apr',
+						'May',
+						'Jun',
+						'Jul',
+						'Aug',
+						'Sep',
+						'Oct',
+						'Nov',
+						'Dec',
+					],
+					datasets: [
+						{
+							data: [30, 15, 34, 12, 35, 56, 87, 88, 98, 100, 10, 150],
+							backgroundColor: '#5A7BFC',
+							hoverBackgroundColor: '#ADBDFE',
+						},
+					],
+				}}
+			/>
+			<Pie data={data} />
 		</div>
 	);
 };

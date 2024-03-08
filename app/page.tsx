@@ -19,7 +19,7 @@ export default function page() {
 				.catch(error => {
 					console.log(error);
 
-					navigate.push('/login');
+					// navigate.push('/login');
 				});
 		} catch (error) {
 			console.log(error);
