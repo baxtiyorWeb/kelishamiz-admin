@@ -295,7 +295,7 @@ const Crud = (props: IProps) => {
 							onClick={props.open}
 							endContent={<PlusIcon size={10} width={100} height={100} props />}
 						>
-							Qo'shish
+							Qo&apos;shish
 						</Button>
 					</div>
 				</div>
