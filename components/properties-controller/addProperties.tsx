@@ -24,7 +24,7 @@ const AddProperties = () => {
 
 	const propertyPost = async () => {
 		const data = await axios.post(
-			'http://kelishamiz.uz/api/v1/api/v1/property',
+			'http://kelishamiz.uz/api/v1/property',
 			{
 				name: {
 					uz: lang.uz,
@@ -47,7 +47,7 @@ const AddProperties = () => {
 		const getData = async () => {
 			try {
 				const { data } = await axios.get(
-					'http://kelishamiz.uz/api/v1/api/v1/value-type/list',
+					'http://kelishamiz.uz/api/v1/value-type/list',
 					{
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

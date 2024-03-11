@@ -49,7 +49,7 @@ const Crud = (props: IProps) => {
 		try {
 			setIsLoading(true);
 			const { data } = await axios.get(
-				'http://95.130.227.131:8080/api/v1/property/all',
+				'http://kelishamiz.uz/api/v1/property/all',
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
