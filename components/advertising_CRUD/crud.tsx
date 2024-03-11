@@ -1,5 +1,5 @@
 'use client';
-import { columns, property } from '@@/components/home/data/properties';
+import { columns } from '@@/components/home/data/properties';
 import { capitalize } from '@@/components/home/utils/utils';
 import {
 	Button,
@@ -17,19 +17,59 @@ import {
 	TableColumn,
 	TableHeader,
 	TableRow,
-	User,
 } from '@nextui-org/react';
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { ChevronDownIcon } from '../home/icons/ChevronDownIcon';
 import { PlusIcon } from '../home/icons/PlusIcon';
 import { SearchIcon } from '../home/icons/SearchIcon';
 import { VerticalDotsIcon } from '../home/icons/VerticalDotsIcon';
 
-const INITIAL_VISIBLE_COLUMNS = ['title', 'value', 'actions'];
+interface IProperty {
+	id: number;
+	name: string;
+	valueTypeDto: {
+		id: number;
+		name: String;
+		typeName: string;
+	};
+}
 
-type User = (typeof property)[0];
+interface IProps {
+	open: () => void;
+}
 
-const Crud = () => {
+const Crud = (props: IProps) => {
+	const [dataValue, setDataValue] = useState<IProperty[] | any>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const INITIAL_VISIBLE_COLUMNS = ['title', 'value', 'actions'];
+
+	type User = (typeof dataValue)[0];
+	const getData = async () => {
+		try {
+			setIsLoading(true);
+			const { data } = await axios.get(
+				'http://95.130.227.131:8080/api/v1/property/all',
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			setDataValue(data.data);
+
+			console.log(dataValue);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		getData();
+		console.log(dataValue);
+	}, []);
 	const [filterValue, setFilterValue] = React.useState('');
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
 		new Set([])
@@ -56,16 +96,16 @@ const Crud = () => {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...property];
+		let filteredUsers = [...dataValue];
 
-		if (hasSearchFilter) {
-			filteredUsers = filteredUsers.filter(user =>
-				user.title.toLowerCase().includes(filterValue.toLowerCase())
-			);
-		}
+		// if (hasSearchFilter) {
+		// 	filteredUsers = filteredUsers.filter(user =>
+		// 		user.name.toLowerCase().includes(filterValue.toLowerCase())
+		// 	);
+		// }
 
 		return filteredUsers;
-	}, [property, filterValue]);
+	}, [dataValue, filterValue]);
 
 	const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -92,16 +132,17 @@ const Crud = () => {
 		switch (columnKey) {
 			case 'title':
 				return (
-					<User description={user.title} name={cellValue}>
-						{user.title}
-					</User>
+					<div className='flex flex-col'>
+						<p className='text-bold  text-lg capitalize text-default-400'>
+							{user.name}
+						</p>
+					</div>
 				);
 			case 'value':
 				return (
 					<div className='flex flex-col'>
-						<p className='text-bold text-small capitalize'>{cellValue}</p>
-						<p className='text-bold text-tiny capitalize text-default-400'>
-							{user.value}
+						<p className='text-bold  text-lg capitalize text-default-400'>
+							{user.valueTypeDto.name}
 						</p>
 					</div>
 				);
@@ -206,6 +247,7 @@ const Crud = () => {
 						</Dropdown>
 						<Button
 							color='primary'
+							onClick={props.open}
 							endContent={<PlusIcon size={10} width={100} height={100} props />}
 						>
 							Add New
@@ -214,7 +256,7 @@ const Crud = () => {
 				</div>
 				<div className='flex justify-between items-center'>
 					<span className='text-default-400 text-small'>
-						Total {property.length} users
+						Total {dataValue.length} users
 					</span>
 					<label className='flex items-center text-default-400 text-small'>
 						Rows per page:
@@ -235,7 +277,7 @@ const Crud = () => {
 		visibleColumns,
 		onSearchChange,
 		onRowsPerPageChange,
-		property.length,
+		dataValue.length,
 		hasSearchFilter,
 	]);
 
