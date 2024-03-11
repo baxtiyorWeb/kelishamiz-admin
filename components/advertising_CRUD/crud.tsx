@@ -39,12 +39,42 @@ interface IProps {
 	open: () => void;
 }
 
+interface ISearch {
+	id: number;
+	name: string;
+	valueTypeDto: {
+		id: number;
+		name: String;
+		typeName: string;
+	};
+}
+
 const Crud = (props: IProps) => {
 	const [dataValue, setDataValue] = useState<IProperty[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const INITIAL_VISIBLE_COLUMNS = ['title', 'value', 'actions'];
+	const [filterValue, setFilterValue] = React.useState('');
+	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
+	const INITIAL_VISIBLE_COLUMNS = ['nomi', 'qiymat turi', 'actions'];
 
 	type User = (typeof dataValue)[0];
+
+	const filterProperty = async (value: any) => {
+		setIsLoading(true);
+		const data = await axios.get(
+			`http://kelishamiz.uz/api/v1/property/list?page=${
+				page - 1
+			}&size=10&search=${value}`,
+			{
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+				},
+			}
+		);
+
+		setIsLoading(false);
+		return data;
+	};
+
 	const getData = async () => {
 		try {
 			setIsLoading(true);
@@ -70,7 +100,7 @@ const Crud = (props: IProps) => {
 		getData();
 		console.log(dataValue);
 	}, []);
-	const [filterValue, setFilterValue] = React.useState('');
+
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
 		new Set([])
 	);
@@ -97,12 +127,13 @@ const Crud = (props: IProps) => {
 
 	const filteredItems = React.useMemo(() => {
 		let filteredUsers = [...dataValue];
+		console.log(filterValue);
 
-		// if (hasSearchFilter) {
-		// 	filteredUsers = filteredUsers.filter(user =>
-		// 		user.name.toLowerCase().includes(filterValue.toLowerCase())
-		// 	);
-		// }
+		if (hasSearchFilter) {
+			filteredUsers = filterData.filter(user =>
+				user.name.toLowerCase().includes(filterValue.toLowerCase())
+			);
+		}
 
 		return filteredUsers;
 	}, [dataValue, filterValue]);
@@ -130,7 +161,7 @@ const Crud = (props: IProps) => {
 		const cellValue = user[columnKey as keyof User];
 
 		switch (columnKey) {
-			case 'title':
+			case 'nomi':
 				return (
 					<div className='flex flex-col'>
 						<p className='text-bold  text-lg capitalize text-default-400'>
@@ -138,7 +169,7 @@ const Crud = (props: IProps) => {
 						</p>
 					</div>
 				);
-			case 'value':
+			case 'qiymat turi':
 				return (
 					<div className='flex flex-col'>
 						<p className='text-bold  text-lg capitalize text-default-400'>
@@ -173,17 +204,38 @@ const Crud = (props: IProps) => {
 		}
 	}, []);
 
-	const onNextPage = React.useCallback(() => {
+	const onNextPage = React.useCallback(async () => {
+		const data = await axios.get(
+			`http://kelishamiz.uz/api/v1/property/list?page=${page + 1}&size=5`,
+			{
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+				},
+			}
+		);
+		const pagesQuery = data?.data?.data?.pageable?.pageNumber;
+
 		if (page < pages) {
-			setPage(page + 1);
+			setPage(pagesQuery);
+			console.log(pagesQuery);
 		}
 	}, [page, pages]);
 
-	const onPreviousPage = React.useCallback(() => {
+	const onPreviousPage = React.useCallback(async () => {
+		const data = await axios.get(
+			`http://kelishamiz.uz/api/v1/property/list?page=${page - 1}&size=10`,
+			{
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+				},
+			}
+		);
+		const pagesQuery = data?.data?.data?.pageable?.pageNumber;
 		if (page > 1) {
-			setPage(page - 1);
+			setPage(pagesQuery);
+			console.log(pagesQuery);
 		}
-	}, [page]);
+	}, [page, pages]);
 
 	const onRowsPerPageChange = React.useCallback(
 		(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -193,10 +245,27 @@ const Crud = (props: IProps) => {
 		[]
 	);
 
-	const onSearchChange = React.useCallback((value?: string) => {
+	const onSearchChange = React.useCallback(async (value?: string) => {
 		if (value) {
 			setFilterValue(value);
+			setIsLoading(true);
+			const { data } = await filterProperty(value);
+
+			// const pagesQuery = data?.data?.data?.pageable?.pageNumber;
+			const filter = data?.data;
+			const filterResult = filter?.content?.filter((user: any) =>
+				user.name.toLowerCase().includes(filterValue.toLowerCase())
+			);
+
+			const filterSearch = filterResult?.map((item: any) => item);
+			setFilterData(filterSearch);
+
 			setPage(1);
+			if (data.success === true) {
+				console.log('success');
+			} else {
+				console.log('error');
+			}
 		} else {
 			setFilterValue('');
 		}
@@ -220,6 +289,8 @@ const Crud = (props: IProps) => {
 						onClear={() => onClear()}
 						onValueChange={onSearchChange}
 					/>
+
+					{isLoading && 'searching...'}
 					<div className='flex gap-3'>
 						<Dropdown>
 							<DropdownTrigger className='hidden sm:flex'>

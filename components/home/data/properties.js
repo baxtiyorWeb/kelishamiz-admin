@@ -1,7 +1,7 @@
 const columns = [
 	{ name: 'ID', uid: 'id', sortable: true },
-	{ name: 'TITLE', uid: 'title', sortable: true },
-	{ name: 'VALUE', uid: 'value', sortable: true },
+	{ name: 'NOMI', uid: 'nomi', sortable: true },
+	{ name: 'QIYMAT TURI', uid: 'qiymat turi', sortable: true },
 	{ name: 'ACTIONS', uid: 'actions' },
 ];
 const property = [
