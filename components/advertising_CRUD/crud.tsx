@@ -1,6 +1,5 @@
 'use client';
 import { columns } from '@@/components/home/data/properties';
-import { capitalize } from '@@/components/home/utils/utils';
 import {
 	Button,
 	Dropdown,
@@ -20,7 +19,6 @@ import {
 } from '@nextui-org/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { ChevronDownIcon } from '../home/icons/ChevronDownIcon';
 import { PlusIcon } from '../home/icons/PlusIcon';
 import { SearchIcon } from '../home/icons/SearchIcon';
 import { VerticalDotsIcon } from '../home/icons/VerticalDotsIcon';
@@ -292,36 +290,12 @@ const Crud = (props: IProps) => {
 
 					{isLoading && 'searching...'}
 					<div className='flex gap-3'>
-						<Dropdown>
-							<DropdownTrigger className='hidden sm:flex'>
-								<Button
-									endContent={<ChevronDownIcon className='text-small' />}
-									variant='flat'
-								>
-									Columns
-								</Button>
-							</DropdownTrigger>
-							<DropdownMenu
-								disallowEmptySelection
-								aria-label='Table Columns'
-								closeOnSelect={false}
-								selectedKeys={visibleColumns}
-								selectionMode='multiple'
-								onSelectionChange={setVisibleColumns}
-							>
-								{columns.map(column => (
-									<DropdownItem key={column.uid} className='capitalize'>
-										{capitalize(column.name)}
-									</DropdownItem>
-								))}
-							</DropdownMenu>
-						</Dropdown>
 						<Button
 							color='primary'
 							onClick={props.open}
 							endContent={<PlusIcon size={10} width={100} height={100} props />}
 						>
-							Add New
+							Qo'shish
 						</Button>
 					</div>
 				</div>
