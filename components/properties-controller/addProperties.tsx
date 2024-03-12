@@ -11,6 +11,7 @@ const AddProperties = () => {
 		typeName: string;
 	}
 	const [dataValue, setDataValue] = useState<ITypeValue[]>();
+	const [isLoading, setIsLoading] = useState(false);
 	const [optionValue, setOptionValue] = useState('');
 	const [messageApi, contextHolder] = message.useMessage();
 
@@ -21,8 +22,24 @@ const AddProperties = () => {
 			content: 'This is a success message',
 		});
 	};
+	const getData = async () => {
+		try {
+			const { data } = await axios.get(
+				'http://kelishamiz.uz/api/v1/value-type/list',
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			setDataValue(data.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	const propertyPost = async () => {
+		setIsLoading(true);
 		const data = await axios.post(
 			'http://kelishamiz.uz/api/v1/property',
 			{
@@ -41,28 +58,12 @@ const AddProperties = () => {
 			}
 		);
 		success();
+		setIsLoading(false);
 	};
 
 	useEffect(() => {
-		const getData = async () => {
-			try {
-				const { data } = await axios.get(
-					'http://kelishamiz.uz/api/v1/value-type/list',
-					{
-						headers: {
-							Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-						},
-					}
-				);
-				setDataValue(data.data);
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
 		getData();
-	}, []);
-	// const [inputs, setInputs] = useState([{ type: 'text', value: '' }]);
+	}, [isLoading]);
 
 	// const addInput = () => {
 	// 	if (inputs.length >= 8) {
@@ -86,17 +87,7 @@ const AddProperties = () => {
 	return (
 		<div>
 			{contextHolder}
-			<div className='border w-full '>
-				<div>
-					{/* <select name='' id=''>
-						{dataValue?.map(item => (
-							<option value={item.id} key={item.id}>
-								{item.name}
-							</option>
-						))}
-					</select> */}
-				</div>
-			</div>
+			<div className='border w-full '></div>
 			<div>
 				<div className='w-full border flex justify-center items-center'>
 					<div className='container flex justify-center items-center mt-5 mb-3 flex-col w-full'>
@@ -128,73 +119,22 @@ const AddProperties = () => {
 								// placeholder='Kategoriya nomini kiriting'
 							/>
 						</div>
-
-						{/* <div className='add_sub_category mt-3 mb-5'>
-							<span>sub Kategoriya kiriting</span>
-							<div className='w-[1400px] border'>
-								<div
-									className={
-										'border w-[100%] overflow-scroll grid grid-cols-4 flex-col justify-center items-center p-5 gap-4'
-									}
-								>
-									{inputs.map((input, index) => (
-										<div key={index}>
-											<Input
-												className='w-[300px] mt-3 mb-3'
-												label='parent kategoriya kiriting'
-												onChange={e => handleInputChange(index, e.target.value)}
-											/>
-											<select
-												className={'border w-[300px] p-2 px-3 rounded-xl'}
-												value={input.type}
-												onChange={e => handleTypeChange(index, e.target.value)}
-											>
-												{dataValue?.map(item => (
-													<option value={item.id} key={item.id}>
-														{item.name}
-													</option>
-												))}
-											</select>
-										</div>
-									))}
-								</div>
-								<button
-									className={
-										'border w-[300px] rounded-xl bg-blue-600 text-white block mx-auto my-4 p-2'
-									}
-									onClick={addInput}
-								>
-									Add Input
-								</button>
-							</div>
-						</div> */}
-
 						<div className='property mt-3 mb-3'>
 							<select
 								className={'border w-[300px] p-2 px-3 rounded-xl'}
 								onChange={e => setOptionValue(e.target.value)}
 							>
-								{dataValue?.map(item => (
-									<option value={item.id} key={item.id}>
-										{item.name}
-									</option>
-								))}
+								{isLoading
+									? 'loading...'
+									: dataValue?.map(item => (
+											<option value={item.id} key={item.id}>
+												{item.name}
+											</option>
+									  ))}
 							</select>
 						</div>
 
-						{/* <div className='description mb-5 mt-3'>
-							<span>tavsif kiriting</span>
-							<Textarea
-								className='w-[600px] mt-3 mb-3'
-								label='tavsif kiriting'
-							/>
-						</div> */}
-						<Button
-							title='save'
-							color='primary'
-							onClick={propertyPost}
-							// className='absolute right-5 bottom-5'
-						>
+						<Button title='save' color='primary' onClick={propertyPost}>
 							save
 						</Button>
 					</div>

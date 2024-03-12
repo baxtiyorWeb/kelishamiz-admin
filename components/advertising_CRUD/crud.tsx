@@ -17,8 +17,9 @@ import {
 	TableHeader,
 	TableRow,
 } from '@nextui-org/react';
+import { message } from 'antd';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { PlusIcon } from '../home/icons/PlusIcon';
 import { SearchIcon } from '../home/icons/SearchIcon';
 import { VerticalDotsIcon } from '../home/icons/VerticalDotsIcon';
@@ -32,11 +33,22 @@ interface IProperty {
 		typeName: string;
 	};
 }
+interface IPropertyUpdate {
+	id: number;
+	name: string;
+	valueTypeDto: {
+		id: number;
+		name: String;
+		typeName: string;
+	};
+}
 
 interface IProps {
 	open: () => void;
+	openUpdate: (id: string) => void;
+	setUpdateId: Dispatch<SetStateAction<any>>;
+	setUpdateProperties: Dispatch<SetStateAction<any>>;
 }
-
 interface ISearch {
 	id: number;
 	name: string;
@@ -53,15 +65,20 @@ const Crud = (props: IProps) => {
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = ['nomi', 'qiymat turi', 'actions'];
-
+	const [messageApi, contextHolder] = message.useMessage();
 	type User = (typeof dataValue)[0];
-
+	const success = () => {
+		messageApi.open({
+			type: 'success',
+			content: "ma'lumot o'chirildi",
+		});
+	};
 	const filterProperty = async (value: any) => {
 		setIsLoading(true);
 		const data = await axios.get(
 			`http://kelishamiz.uz/api/v1/property/list?page=${
 				page - 1
-			}&size=10&search=${value}`,
+			}&size=5&search=${value}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -85,8 +102,6 @@ const Crud = (props: IProps) => {
 				}
 			);
 			setDataValue(data.data);
-
-			console.log(dataValue);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -94,9 +109,54 @@ const Crud = (props: IProps) => {
 		}
 	};
 
+	const deleteData = async (id: string) => {
+		try {
+			setIsLoading(true);
+			const { data } = await axios.delete(
+				`http://kelishamiz.uz/api/v1/property/${id}?deleted=${true}`,
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			await getData();
+			success();
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+	const updateGetData = async (id: string) => {
+		try {
+			setIsLoading(true);
+			const data = await axios.get(
+				`http://kelishamiz.uz/api/v1/property/${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			props.setUpdateProperties(data?.data?.data);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const updateData = async (id: string) => {
+		props.setUpdateId(id);
+		props.openUpdate(id);
+
+		updateGetData(id);
+	};
+
 	useEffect(() => {
 		getData();
-		console.log(dataValue);
 	}, []);
 
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
@@ -125,7 +185,6 @@ const Crud = (props: IProps) => {
 
 	const filteredItems = React.useMemo(() => {
 		let filteredUsers = [...dataValue];
-		console.log(filterValue);
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>
@@ -179,6 +238,7 @@ const Crud = (props: IProps) => {
 			case 'actions':
 				return (
 					<div className='relative flex justify-end items-center gap-2'>
+						{contextHolder}
 						<Dropdown>
 							<DropdownTrigger>
 								<Button isIconOnly size='sm' variant='light'>
@@ -191,8 +251,12 @@ const Crud = (props: IProps) => {
 							</DropdownTrigger>
 							<DropdownMenu>
 								<DropdownItem>View</DropdownItem>
-								<DropdownItem>Edit</DropdownItem>
-								<DropdownItem>Delete</DropdownItem>
+								<DropdownItem onClick={() => updateData(user.id)}>
+									Edit
+								</DropdownItem>
+								<DropdownItem onClick={() => deleteData(user.id)}>
+									Delete
+								</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -215,7 +279,6 @@ const Crud = (props: IProps) => {
 
 		if (page < pages) {
 			setPage(pagesQuery);
-			console.log(pagesQuery);
 		}
 	}, [page, pages]);
 
@@ -231,7 +294,6 @@ const Crud = (props: IProps) => {
 		const pagesQuery = data?.data?.data?.pageable?.pageNumber;
 		if (page > 1) {
 			setPage(pagesQuery);
-			console.log(pagesQuery);
 		}
 	}, [page, pages]);
 
@@ -259,11 +321,6 @@ const Crud = (props: IProps) => {
 			setFilterData(filterSearch);
 
 			setPage(1);
-			if (data.success === true) {
-				console.log('success');
-			} else {
-				console.log('error');
-			}
 		} else {
 			setFilterValue('');
 		}
@@ -286,6 +343,7 @@ const Crud = (props: IProps) => {
 						value={filterValue}
 						onClear={() => onClear()}
 						onValueChange={onSearchChange}
+						minLength={3}
 					/>
 
 					{isLoading && 'searching...'}
