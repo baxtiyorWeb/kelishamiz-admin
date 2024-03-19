@@ -5,28 +5,52 @@ import { useEffect, useState } from 'react';
 
 interface IProps {
 	id: any;
-	updateProperties: any;
+	updateCategories: any;
 }
-interface ITypeValue {
+interface ICategoryValue {
 	id: number;
 	name: string;
-	typeName: string;
+	childCategory: [];
+}
+
+interface ICategoryUpdate {
+	name: {
+		uz: string;
+		ru: string;
+		en: string;
+	};
+	image: string;
+	parentId: number;
+	categoryPropertyForms: [
+		{
+			id: number;
+			propertyId: number;
+			deleted: boolean;
+		}
+	];
 }
 
 const UpdateProperties = (props: IProps) => {
-	const [dataValue, setDataValue] = useState<ITypeValue[]>([]);
+	const [dataValue, setDataValue] = useState<ICategoryValue[]>([]);
 	const [option, setOption] = useState<string>();
 	const [lang, setLang] = useState({ uz: '', ru: '', en: '' });
 
 	const updateData = async () => {
 		try {
 			const { data } = await axios.put(
-				`http://95.130.227.131:8080/api/v1/property/${props.id}`,
+				`http://95.130.227.131:8080/api/v1/category/${props.id}`,
 				{
 					name: {
 						...lang,
 					},
-					valueTypeId: option,
+					parentId: 0,
+					categoryPropertyForms: [
+						{
+							id: 0,
+							propertyId: option,
+							deleted: true,
+						},
+					],
 				},
 				{
 					headers: {
@@ -44,7 +68,7 @@ const UpdateProperties = (props: IProps) => {
 	const getTypeList = async () => {
 		try {
 			const { data } = await axios.get(
-				'http://95.130.227.131:8080/api/v1/value-type/list',
+				'http://95.130.227.131:8080/api/v1/property/all',
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -64,7 +88,9 @@ const UpdateProperties = (props: IProps) => {
 	return (
 		<div>
 			<div className='border w-full '>
-				<div></div>
+				<div>
+					<h1 className='text-center'>Malumotni yangilash</h1>
+				</div>
 			</div>
 			<div>
 				<div className='w-full border flex justify-center items-center'>
@@ -75,8 +101,8 @@ const UpdateProperties = (props: IProps) => {
 								<Input
 									className='mt-3 mb-5 mr-5 ml-1'
 									label='name_uz'
-									defaultValue={props.updateProperties?.name || ''}
-									placeholder={props.updateProperties?.name}
+									defaultValue={props.updateCategories?.name || ''}
+									placeholder={props.updateCategories?.name}
 									onChange={e => setLang({ ...lang, uz: e.target.value })}
 								/>
 								<Input
@@ -96,15 +122,8 @@ const UpdateProperties = (props: IProps) => {
 							<select
 								className={'border w-[300px] p-2 px-3 rounded-xl'}
 								onChange={e => setOption(e.target.value)}
-								defaultValue={props.updateProperties?.id}
 							>
-								<option
-									defaultValue={props.updateProperties?.valueTypeDto?.id}
-									key={props.updateProperties?.valueTypeDto?.id}
-								>
-									{props.updateProperties?.valueTypeDto?.name}
-								</option>
-
+								<option value='select'>select</option>
 								{dataValue?.map(item => (
 									<option value={item.id} key={item.id}>
 										{item.name}

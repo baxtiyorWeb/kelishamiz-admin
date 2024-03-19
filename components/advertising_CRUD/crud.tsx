@@ -73,7 +73,7 @@ const Crud = (props: IProps) => {
 			content: "ma'lumot o'chirildi",
 		});
 	};
-	const filterProperty = async (value: any) => {
+	const filterSearchProperty = async (value: any) => {
 		setIsLoading(true);
 		const data = await axios.get(
 			`http://kelishamiz.uz/api/v1/property/list?page=${
@@ -89,12 +89,32 @@ const Crud = (props: IProps) => {
 		setIsLoading(false);
 		return data;
 	};
+	const filterOptionProperty = async (value: any) => {
+		console.log(value);
+
+		setIsLoading(true);
+		const data = await axios.get(
+			`http://95.130.227.131:8080/api/v1/property/list?page=${
+				page - 1
+			}&size=5&valueTypeIdand=${value - 1}`,
+			{
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+				},
+			}
+		);
+
+		console.log(data.data);
+		setIsLoading(false);
+
+		return data;
+	};
 
 	const getData = async () => {
 		try {
 			setIsLoading(true);
 			const { data } = await axios.get(
-				'http://kelishamiz.uz/api/v1/property/all',
+				'http://95.130.227.131:8080/api/v1/property/all',
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -113,7 +133,7 @@ const Crud = (props: IProps) => {
 		try {
 			setIsLoading(true);
 			const { data } = await axios.delete(
-				`http://kelishamiz.uz/api/v1/property/${id}?deleted=${true}`,
+				`http://95.130.227.131:8080/api/v1/property/${id}?deleted=${true}`,
 				{
 					headers: {
 						'Content-Type': 'application/json',
@@ -133,7 +153,7 @@ const Crud = (props: IProps) => {
 		try {
 			setIsLoading(true);
 			const data = await axios.get(
-				`http://kelishamiz.uz/api/v1/property/${id}`,
+				`http://95.130.227.131:8080/api/v1/property/${id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -268,7 +288,7 @@ const Crud = (props: IProps) => {
 
 	const onNextPage = React.useCallback(async () => {
 		const data = await axios.get(
-			`http://kelishamiz.uz/api/v1/property/list?page=${page + 1}&size=5`,
+			`http://95.130.227.131:8080/api/v1/list?page=${page + 1}&size=5`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -284,7 +304,7 @@ const Crud = (props: IProps) => {
 
 	const onPreviousPage = React.useCallback(async () => {
 		const data = await axios.get(
-			`http://kelishamiz.uz/api/v1/property/list?page=${page - 1}&size=10`,
+			`http://95.130.227.131:8080/api/v1/list?page=${page - 1}&size=10`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -300,6 +320,7 @@ const Crud = (props: IProps) => {
 	const onRowsPerPageChange = React.useCallback(
 		(e: React.ChangeEvent<HTMLSelectElement>) => {
 			setRowsPerPage(Number(e.target.value));
+			filterOptionProperty(e.target.value);
 			setPage(1);
 		},
 		[]
@@ -309,7 +330,7 @@ const Crud = (props: IProps) => {
 		if (value) {
 			setFilterValue(value);
 			setIsLoading(true);
-			const { data } = await filterProperty(value);
+			const { data } = await filterSearchProperty(value);
 
 			// const pagesQuery = data?.data?.data?.pageable?.pageNumber;
 			const filter = data?.data;
@@ -367,9 +388,9 @@ const Crud = (props: IProps) => {
 							className='bg-transparent outline-none text-default-400 text-small'
 							onChange={onRowsPerPageChange}
 						>
-							<option value='5'>5</option>
-							<option value='10'>10</option>
-							<option value='15'>15</option>
+							<option value='1'>1</option>
+							<option value='2'>2</option>
+							<option value='3'>3</option>
 						</select>
 					</label>
 				</div>

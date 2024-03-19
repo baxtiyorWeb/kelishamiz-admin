@@ -150,17 +150,6 @@ export default function HomeTableData() {
 						<p className='text-[16px]'>{user.categories}</p>
 					</Chip>
 				);
-			case 'category':
-				return (
-					<Chip
-						className='capitalize border-none gap-1 text-default-900 text-[30px]'
-						color={statusColorMap[user.price]}
-						size='sm'
-						variant='faded'
-					>
-						<p className='text-[16px]'>{user.price}</p>
-					</Chip>
-				);
 			case 'actions':
 				return (
 					<div className='relative flex justify-end items-center gap-2'>

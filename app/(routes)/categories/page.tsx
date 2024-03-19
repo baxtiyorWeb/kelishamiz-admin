@@ -2,19 +2,33 @@
 import AddCateg from '@@/app/(routes)/categories/UI/addCateg';
 import { categoriesMenu } from '@@/app/(routes)/categories/data';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { FiPlusCircle } from 'react-icons/fi';
 import { MdClose } from 'react-icons/md';
+import CategoryData from './category-table';
+import UpdateProperties from './category-update';
 
 export default function Categories() {
 	const [showAddCateg, setShowAddCateg] = React.useState(false);
-	const showElement = () => {
+	const [updateShowAddCateg, setUpdateShowAddCateg] = React.useState(false);
+	const [updateCategories, setUpdateCategories] = useState();
+	const [updateId, setUpdateId] = useState();
+	const showElement = (): void => {
 		setShowAddCateg(!showAddCateg);
 		document.body.style.overflow = 'hidden';
 		if (showAddCateg === true) {
 			document.body.style.overflow = 'unset';
 		}
 	};
+	const showElementUpdate = (): void => {
+		setUpdateShowAddCateg(!updateShowAddCateg);
+		document.body.style.overflow = 'hidden';
+		if (showAddCateg === true) {
+			document.body.style.overflow = 'unset';
+		}
+	};
+
+	console.log(updateCategories);
 
 	return (
 		<>
@@ -29,7 +43,11 @@ export default function Categories() {
 					<FiPlusCircle /> Add Categories{' '}
 				</button>
 			</div>
-
+			<CategoryData
+				openUpdate={() => showElementUpdate()}
+				setUpdateId={setUpdateId}
+				setUpdateCategories={setUpdateCategories}
+			/>
 			<div className='grid  grid-cols-5 justify-items-center gap-3 p-6'>
 				{categoriesMenu.map(item => {
 					return (
@@ -79,7 +97,7 @@ export default function Categories() {
 			<div
 				className={
 					showAddCateg
-						? 'w-full h-[100vh] bg-white shadow-2xl transition-transform translate-y-[0%] fixed bottom-0 left-0 z-[999988]'
+						? 'w-full h-[100vh] bg-white shadow-2xl transition-transform translate-y-[0%] fixed bottom-0 left-0 z-[99]'
 						: 'w-full h-[0vh] translate-y-[120%] transition-transform fixed bottom-0 left-0 z-[999988]'
 				}
 			>
@@ -90,6 +108,21 @@ export default function Categories() {
 					/>
 				</div>
 				<AddCateg />
+			</div>
+			<div
+				className={
+					updateShowAddCateg
+						? 'w-full h-[100vh] bg-white shadow-2xl transition-transform translate-y-[0%] fixed bottom-0 left-0 z-[99]'
+						: 'w-full h-[0vh] translate-y-[120%] transition-transform fixed bottom-0 left-0 z-[999988]'
+				}
+			>
+				<div className='flex justify-end items-center p-3'>
+					<MdClose
+						className='text text-2xl cursor-pointer'
+						onClick={showElement}
+					/>
+				</div>
+				<UpdateProperties id={updateId} updateCategories={updateCategories} />
 			</div>
 		</>
 	);

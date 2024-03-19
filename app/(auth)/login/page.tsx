@@ -13,7 +13,7 @@ const Login = () => {
 	const loginNameAndPassword = async () => {
 		try {
 			const { data, status } = await axios.post(
-				'http://kelishamiz.uz/api/v1/authority/sign-in',
+				'http://95.130.227.131:8080/api/v1/authority/sign-in',
 				{
 					username: login.username,
 					password: login.password,
