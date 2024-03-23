@@ -2,7 +2,6 @@
 'use client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React from 'react';
 
 interface BreadcrumbPropsChild {
 	name: string;
@@ -14,18 +13,21 @@ interface BreadcrumbProps {
 	data: BreadcrumbPropsChild; // Ma'lumotlar obyekti
 }
 
-const Breadcrumb: React.FC<BreadcrumbProps> = ({ data }) => {
+const Breadcrumb = ({ data }: BreadcrumbProps) => {
 	const params = useParams<{ id: string }>();
 	const breadcrumbs = [];
 
 	let currentData = data;
 	while (currentData) {
 		breadcrumbs.unshift(
-			<span key={params.id}>
-				<Link href={`/category-details/${currentData.id}`}>
+			<span className='text-lg font-bold text-sky-500' key={params.id}>
+				<Link
+					className='hover:underline'
+					href={`/category-details/${currentData.id}`}
+				>
 					{currentData.name}
 				</Link>
-				<span> / </span>
+				<span className='text-blue-600'> &gt; </span>
 			</span>
 		);
 

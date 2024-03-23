@@ -527,11 +527,10 @@
 // export default CategoryData;
 import BreadcrumbsContainer from '@@/app/(routes)/categories/breadcrumb/breadCrumbsContainer';
 import axios from 'axios';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FaArrowLeft, FaWindowClose } from 'react-icons/fa';
 import './category.css';
+import PageTableComponent from './pageTableComponent';
 
 interface ISearchParent {
 	id: number;
@@ -583,36 +582,7 @@ const CategoryData = () => {
 			<BreadcrumbsContainer data={data} />
 
 			<h1 className='mt-10 mb-10 text-4xl'>{data.name}</h1>
-			<table>
-				<thead>
-					<tr>
-						<th>rasmi</th>
-						<th>nomi</th>
-						<th>child</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>
-							<img
-								className='w-[80px] h-[80px]'
-								src={`${data.image}`}
-								alt='rasm'
-							/>
-						</td>
-						<td>{data.name}</td>
-						<td>
-							{data.parent !== null ? (
-								<Link href={`/category-details/${data?.parent?.id}`}>
-									<FaArrowLeft />
-								</Link>
-							) : (
-								<FaWindowClose />
-							)}
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<PageTableComponent {...data} />
 		</div>
 	);
 };
