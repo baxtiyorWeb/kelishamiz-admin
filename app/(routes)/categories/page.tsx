@@ -32,7 +32,7 @@ export default function Categories() {
 
 	return (
 		<>
-			<div className={'flex justify-between px-5 py-6'}>
+			<div className={'flex justify-between  px-5 py-6'}>
 				<h1 className={'text-3xl font-bold text-gray-600 '}>Kategoriyalar</h1>
 				<button
 					onClick={() => showElement()}
@@ -48,6 +48,7 @@ export default function Categories() {
 				setUpdateId={setUpdateId}
 				setUpdateCategories={setUpdateCategories}
 			/>
+			{/* <CategoryDataTable /> */}
 			<div className='grid  grid-cols-5 justify-items-center gap-3 p-6'>
 				{categoriesMenu.map(item => {
 					return (

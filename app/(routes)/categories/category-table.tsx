@@ -24,7 +24,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaWindowClose } from 'react-icons/fa';
 import { columns } from './data';
 
 interface ICategory {
@@ -36,8 +36,8 @@ interface ICategory {
 interface ISearch {
 	id: number;
 	name: string;
-	hasChildren: any;
-	childCategory: [];
+	hasChildren: boolean;
+	image: string;
 }
 
 interface IProps {
@@ -51,8 +51,8 @@ interface IProps {
 const CategoryData = (props: IProps) => {
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [getId, setGetId] = useState<ISearch[]>([]);
 	const [filterValue, setFilterValue] = React.useState('');
-	const [hasChildrenDetect, setHasChildrenDetect] = useState<ISearch[]>([]);
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = [
 		'rasm',
@@ -65,9 +65,30 @@ const CategoryData = (props: IProps) => {
 	const success = () => {
 		messageApi.open({
 			type: 'success',
-			content: "ma'lumot o'chirildi",
+			content: "ma'lumot  o'chirildi",
 		});
 	};
+	const getData = async () => {
+		try {
+			const data = await axios.get(
+				`http://95.130.227.131:8080/api/v1/category/all`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			setDataValue(data.data.data);
+			console.log(data.data.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	useEffect(() => {
+		getData();
+	}, []);
+
 	const filterSearchCategory = async (value: any) => {
 		setIsLoading(true);
 		const data = await axios.get(
@@ -80,10 +101,16 @@ const CategoryData = (props: IProps) => {
 				},
 			}
 		);
-		setIsLoading(false);
 
+		setFilterData(data.data.data.content);
+		console.log(data.data.data);
+
+		const values = filterData.map(item => item.hasChildren);
+
+		setIsLoading(false);
 		return data;
 	};
+
 	const filterOptionCategory = async (value: any) => {
 		console.log(value);
 
@@ -99,33 +126,12 @@ const CategoryData = (props: IProps) => {
 
 		setDataValue(data?.data?.data?.content);
 		setRowsPerPage(value);
-		console.log(value);
 
 		await getData();
 
 		setIsLoading(false);
 
 		return data;
-	};
-
-	const getData = async () => {
-		try {
-			setIsLoading(true);
-			const data = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/all?parentId=null`,
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-					},
-				}
-			);
-			setDataValue(data.data.data);
-			console.log(data.data.data);
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setIsLoading(false);
-		}
 	};
 
 	console.log(dataValue);
@@ -176,10 +182,6 @@ const CategoryData = (props: IProps) => {
 		updateGetData(id);
 	};
 
-	useEffect(() => {
-		getData();
-	}, []);
-
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
 		new Set([])
 	);
@@ -191,8 +193,6 @@ const CategoryData = (props: IProps) => {
 		column: 'age',
 		direction: 'ascending',
 	});
-
-	console.log(filterData);
 
 	const [page, setPage] = React.useState(1);
 
@@ -285,7 +285,6 @@ const CategoryData = (props: IProps) => {
 			setFilterValue(value);
 			setIsLoading(true);
 			const { data } = await filterSearchCategory(value);
-
 			const filter = data?.data;
 			const filterResult = filter?.content?.filter((user: any) =>
 				user.name.toLowerCase().includes(filterValue.toLowerCase())
@@ -293,12 +292,6 @@ const CategoryData = (props: IProps) => {
 
 			const filterSearch = filterResult?.map((item: any) => item);
 			setFilterData(filterSearch);
-
-			filterData.map(itemHasChildren =>
-				setHasChildrenDetect(itemHasChildren.hasChildren)
-			);
-			console.log(filterSearch);
-
 			setPage(1);
 		} else {
 			setFilterValue('');
@@ -310,16 +303,23 @@ const CategoryData = (props: IProps) => {
 		setPage(1);
 	}, []);
 
-	console.log(hasChildrenDetect);
-
 	const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
 		const cellValue = user[columnKey as keyof User];
+		const d = filterData.map(item => item.hasChildren);
+		console.log(d);
+
+		if (d) {
+			const idf = filterData.filter(item => item.id === user.id);
+
+			setGetId(idf);
+		}
+		console.log(getId);
 
 		switch (columnKey) {
 			case 'rasm':
 				return (
-					<div className='flex flex-col'>
-						<p className='text-bold  text-lg capitalize text-default-400'>
+					<div className='flex flex-col '>
+						<p className='text-bold  text-lg  capitalize text-default-400'>
 							<Image
 								src={
 									'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
@@ -335,34 +335,33 @@ const CategoryData = (props: IProps) => {
 			case 'kategoriya':
 				return (
 					<div className='flex flex-col'>
-						<p className='text-bold  text-lg capitalize text-default-400'>
+						<p className='text-bold   text-lg capitalize text-default-400'>
 							{user.name}
 						</p>
 					</div>
 				);
+
 			case 'child category':
 				return (
-					<Chip
-						size='md'
-						variant={user?.childCategories?.length ? 'faded' : 'light'}
-						className='flex flex-col  cursor-pointer capitalize border-none gap-1 text-default-900 text-[50px]'
-					>
-						<Link
-							href={
-								user?.childCategories?.length
-									? `/category-details/${user.id}`
-									: '/categories'
-							}
+					<>
+						<Chip
+							size='md'
+							variant={user.hasChildren ? 'faded' : 'light'}
+							className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
 						>
-							<p className='text-bold relative top-1  text-lg capitalize text-default-400 flex justify-center items-center'>
-								{user?.childCategories?.length ? (
-									<FaArrowRight className='w-[150px]' />
-								) : (
-									''
-								)}
-							</p>
-						</Link>
-					</Chip>
+							<Link
+								href={
+									user.hasChildren
+										? `/category-details/${user.id}`
+										: '/categories'
+								}
+							>
+								<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
+									{user.hasChildren ? <FaArrowRight /> : <FaWindowClose />}
+								</p>
+							</Link>
+						</Chip>
+					</>
 				);
 
 			case 'actions':
