@@ -4,8 +4,14 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React from 'react';
 
+interface BreadcrumbPropsChild {
+	name: string;
+	id: number;
+	parent: any;
+}
+
 interface BreadcrumbProps {
-	data: any; // Ma'lumotlar obyekti
+	data: BreadcrumbPropsChild; // Ma'lumotlar obyekti
 }
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ data }) => {
