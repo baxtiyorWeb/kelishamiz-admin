@@ -31,26 +31,25 @@ import { FaArrowRight } from 'react-icons/fa';
 import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
 import { category, columns } from './data';
 
-export interface ICategory {
+interface ICategory {
 	id: number;
 	name: string;
 	childCategory: [];
 }
 
-type IProps = {
+interface IProps {
 	id: string;
 	updateCategories: any;
 	openUpdate: (id: string) => void;
 	setUpdateId: Dispatch<SetStateAction<any>>;
 	setUpdateCategories: Dispatch<SetStateAction<any>>;
-};
+}
 
-const CategoryData: React.FC<IProps> = ({
+export default function CategoryData({
 	openUpdate,
-	setUpdateCategories,
 	setUpdateId,
-	updateCategories,
-}) => {
+	setUpdateCategories,
+}: IProps) {
 	const { id } = useParams<{ id: string }>();
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -503,6 +502,4 @@ const CategoryData: React.FC<IProps> = ({
 			</Table>
 		</div>
 	);
-};
-
-export default CategoryData;
+}
