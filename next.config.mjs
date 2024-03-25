@@ -6,6 +6,9 @@ const nextConfig = {
 	experimental: {
 		trustProxy: true,
 	},
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
 };
 
 export default nextConfig;

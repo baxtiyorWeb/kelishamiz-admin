@@ -104,7 +104,7 @@ const CategoryData = (props: IProps) => {
 		const data = await axios.get(
 			`http://95.130.227.131:8080/api/v1/category/list?page=${
 				page - 1
-			}&size=10&search=${value}`,
+			}&size=10&search=${value}&parentId=10`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
