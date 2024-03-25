@@ -37,15 +37,20 @@ export interface ICategory {
 	childCategory: [];
 }
 
-export interface IProps {
+type IProps = {
 	id: string;
 	updateCategories: any;
 	openUpdate: (id: string) => void;
 	setUpdateId: Dispatch<SetStateAction<any>>;
 	setUpdateCategories: Dispatch<SetStateAction<any>>;
-}
+};
 
-const CategoryData = (props: IProps) => {
+const CategoryData: React.FC<IProps> = ({
+	openUpdate,
+	setUpdateCategories,
+	setUpdateId,
+	updateCategories,
+}) => {
 	const { id } = useParams<{ id: string }>();
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -155,7 +160,7 @@ const CategoryData = (props: IProps) => {
 					},
 				}
 			);
-			props.setUpdateCategories(data?.data?.data);
+			setUpdateCategories(data?.data?.data);
 		} catch (error) {
 			console.log(error);
 		} finally {
@@ -164,8 +169,8 @@ const CategoryData = (props: IProps) => {
 	};
 
 	const updateData = async (id: string) => {
-		props.setUpdateId(id);
-		props.openUpdate(id);
+		setUpdateId(id);
+		openUpdate(id);
 
 		updateGetData(id);
 	};
