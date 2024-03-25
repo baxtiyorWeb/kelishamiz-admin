@@ -3,6 +3,9 @@ const nextConfig = {
 	images: {
 		domains: ['i.pravatar.cc', 'images.uzum.uz', 'www.usnews.com'],
 	},
+	experimental: {
+		trustProxy: true,
+	},
 };
 
 export default nextConfig;
