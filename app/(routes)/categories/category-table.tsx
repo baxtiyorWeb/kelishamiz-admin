@@ -104,7 +104,7 @@ const CategoryData = (props: IProps) => {
 		const data = await axios.get(
 			`http://95.130.227.131:8080/api/v1/category/list?page=${
 				page - 1
-			}&size=10&search=${value}&parentId=10`,
+			}&size=10&parentId=null&search=${value}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -123,7 +123,7 @@ const CategoryData = (props: IProps) => {
 	const filterOptionCategory = async (value: any) => {
 		setIsLoading(true);
 		const data = await axios.get(
-			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&search=${filterValue}&value=${page}`,
+			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&search=${filterValue}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

@@ -69,7 +69,7 @@ export default function CategoryData({
 			content: "ma'lumot  o'chirildi",
 		});
 	};
-
+	// /category/list?page=0&size=10&parentId=53
 	const getData = async () => {
 		const response = await api.get(`/category/${id}`);
 
@@ -108,7 +108,7 @@ export default function CategoryData({
 
 		setIsLoading(true);
 		const data = await axios.get(
-			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&search=${filterValue}&value=${page}`,
+			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&page=${page}&search=${filterValue}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
