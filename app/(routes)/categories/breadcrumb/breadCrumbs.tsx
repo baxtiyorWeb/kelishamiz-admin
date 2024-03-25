@@ -1,38 +1,51 @@
-// Breadcrumb.tsx
+// // Breadcrumb.tsx
 'use client';
+
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import React from 'react';
 
-interface BreadcrumbPropsChild {
-	name: string;
+interface Category {
 	id: number;
-	parent: any;
+	name: string;
+	image: string;
+	parent?: Category;
+	properties: any;
 }
 
-interface BreadcrumbProps {
-	data: BreadcrumbPropsChild; // Ma'lumotlar obyekti
+interface BreadcrumbsProps {
+	data: Category;
 }
 
-const Breadcrumb: React.FC<BreadcrumbProps> = ({ data }) => {
-	const params = useParams<{ id: string }>();
-	const breadcrumbs = [];
+import { useParams } from 'next/navigation';
+const Breadcrumbs = ({ data }: BreadcrumbsProps) => {
+	const { id } = useParams<{ id: string }>();
 
-	let currentData = data;
-	while (currentData) {
-		breadcrumbs.unshift(
-			<span key={params.id}>
-				<Link href={`/category-details/${currentData.id}`}>
-					{currentData.name}
-				</Link>
-				<span> / </span>
-			</span>
-		);
+	function generateBreadcrumbs(node: any, breadcrumbs = []) {
+		if (!node) return breadcrumbs;
 
-		currentData = currentData.parent;
+		const updatedBreadcrumbs: any = [...breadcrumbs, node];
+
+		return generateBreadcrumbs(node.parent, updatedBreadcrumbs);
 	}
 
-	return <div>{breadcrumbs}</div>;
+	const breadcrumbs = generateBreadcrumbs(data).reverse();
+
+	return (
+		<div>
+			{breadcrumbs.map((crumb: { id: number; name: string }, index) => (
+				<span className='text-lg font-bold text-sky-500' key={crumb?.id}>
+					<Link
+						className='hover:underline'
+						href={`/categories/category-detail/${crumb?.id}`}
+					>
+						{crumb?.name}
+						{index < breadcrumbs.length - 1 && (
+							<span className='text-blue-600'> &gt; </span>
+						)}
+					</Link>
+				</span>
+			))}
+		</div>
+	);
 };
 
-export default Breadcrumb;
+export default Breadcrumbs;

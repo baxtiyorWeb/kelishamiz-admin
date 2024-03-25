@@ -1,87 +1,81 @@
 'use client';
-import { Button, Input } from '@nextui-org/react';
-import { message } from 'antd';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import useCreateCategories from '@@/hooks/categories/useCreateCategories';
+import useProperties from '@@/hooks/properties/useProperties';
+import { Input } from '@nextui-org/react';
+import { Button, message } from 'antd';
+import { useState } from 'react';
 
 const DynamicInput = () => {
-	interface IProperties {
-		id: number;
-		name: string;
-		valueTypeDto: {
-			id: number;
-			name: string;
-			typeName: string;
-		};
-	}
+	const { createCategoryPost } = useCreateCategories();
+	const { data, error, isLoading } = useProperties();
+
+	interface IProperties {}
 	const [property, setProperty] = useState<IProperties[]>();
+	const [lang, setLang] = useState({ uz: '', ru: '', en: '' });
 	const [optionValue, setOptionValue] = useState('');
-	const [file, setFile] = useState<File>();
 	const [messageApi, contextHolder] = message.useMessage();
-	const success = () => {
+	const successs = () => {
 		messageApi.open({
 			type: 'success',
 			content: 'categoriya kiritildi',
 		});
 	};
-	const error = () => {
+	const errors = () => {
 		messageApi.open({
 			type: 'error',
 			content: 'categoriya kiritishda xatolik ',
 		});
 	};
-	const [lang, setLang] = useState({ uz: '', ru: '', en: '' });
-	const propertyPost = async () => {
-		try {
-			const data = await axios.post(
-				'http://95.130.227.131:8080/api/v1/category',
-				{
-					name: {
-						...lang,
-					},
-					image: 'file?.name',
-					parentId: 0,
-					categoryPropertyForms: [
-						{
-							id: 0,
-							propertyId: optionValue,
-							deleted: true,
-						},
-					],
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-						'Content-Type': 'application/json',
-					},
-				}
-			);
-			if (data.status === 200) {
-				success();
-			}
-		} catch (err) {
-			error();
-		}
-	};
-	const getProperties = async () => {
-		try {
-			const { data } = await axios.get(
-				'http://95.130.227.131:8080/api/v1/property/all',
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-					},
-				}
-			);
-			setProperty(data.data);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 
-	useEffect(() => {
-		getProperties();
-	}, []);
+	console.log(data?.data?.data);
+	// const propertyPost = async () => {
+	// 	try {
+	// 		const data = await axios.post(
+	// 			'http://95.130.227.131:8080/api/v1/category',
+	// 			{
+	// 				name: {
+	// 					...lang,
+	// 				},
+	// 				image: 'file?.name',
+	// 				parentId: 0,
+	// 				categoryPropertyForms: [
+	// 					{
+	// 						id: 0,
+	// 						propertyId: optionValue,
+	// 						deleted: true,
+	// 					},
+	// 				],
+	// 			},
+	// 			{
+	// 				headers: {
+	// 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+	// 					'Content-Type': 'application/json',
+	// 				},
+	// 			}
+	// 		);
+	// 		if (data.status === 200) {
+	// 			success();
+	// 		}
+	// 	} catch (err) {
+	// 		error();
+	// 	}
+	// };
+	// const getProperties = async () => {
+	// 	try {
+	// 		const { data } = await axios.get(
+	// 			'http://95.130.227.131:8080/api/v1/property/all',
+	// 			{
+	// 				headers: {
+	// 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+	// 				},
+	// 			}
+	// 		);
+	// 		setProperty(data.data);
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
+
 	return (
 		<div>
 			{contextHolder}
@@ -121,7 +115,7 @@ const DynamicInput = () => {
 									onChange={e => setOptionValue(e.target.value)}
 								>
 									<option value=''>propertyni tanlang</option>
-									{property?.map(item => (
+									{data?.data?.data?.map((item: any) => (
 										<option value={item.id} key={item.id}>
 											{item.name}
 										</option>
@@ -129,10 +123,13 @@ const DynamicInput = () => {
 								</select>
 							</div>
 						</div>
+
 						<Button
 							title='save'
 							color='primary'
-							onClick={propertyPost}
+							onClick={() =>
+								createCategoryPost(optionValue, lang.uz, lang.en, lang.ru)
+							}
 							// className='absolute right-5 bottom-5'
 						>
 							save

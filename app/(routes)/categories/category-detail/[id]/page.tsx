@@ -1,6 +1,8 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
+import api from '@@/config/api';
+import { ISearch } from '@@/interface/interface';
 import {
 	Button,
 	Chip,
@@ -23,21 +25,16 @@ import { Select, message } from 'antd';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
-import { columns } from './data';
+import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
+import { category, columns } from './data';
 
 interface ICategory {
 	id: number;
 	name: string;
 	childCategory: [];
-}
-
-interface ISearch {
-	id: number;
-	name: string;
-	hasChildren: boolean;
-	image: string;
 }
 
 interface IProps {
@@ -49,6 +46,8 @@ interface IProps {
 }
 
 const CategoryData = (props: IProps) => {
+	const { id } = useParams<{ id: string }>();
+	const [getDetailParams, setGetDetailsParams] = useState();
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [getId, setGetId] = useState<ISearch[]>([]);
@@ -68,36 +67,17 @@ const CategoryData = (props: IProps) => {
 			content: "ma'lumot  o'chirildi",
 		});
 	};
+
 	const getData = async () => {
-		try {
-			const data = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/all`,
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-					},
-				}
-			);
+		const response = await api.get(`/category/${id}`);
 
-			return data.data?.data.reduce((result: any, value: any) => {
-				if (Array.isArray(value)) {
-					return [...result, ...getData(value)];
-				}
-
-				setDataValue([...result, value]);
-
-				return [...result, value];
-			}, []);
-		} catch (error) {
-			console.log(error);
-		}
+		console.log(response.data?.data);
+		setDataValue(response.data?.data);
 	};
 
 	useEffect(() => {
 		getData();
 	}, []);
-
-	console.log(dataValue);
 
 	const filterSearchCategory = async (value: any) => {
 		setIsLoading(true);
@@ -112,7 +92,8 @@ const CategoryData = (props: IProps) => {
 			}
 		);
 
-		setFilterData(data.data.data.content);
+		setFilterData(data.data.data.parent);
+		console.log(data.data.data.parent);
 
 		const values = filterData.map(item => item.hasChildren);
 
@@ -121,6 +102,8 @@ const CategoryData = (props: IProps) => {
 	};
 
 	const filterOptionCategory = async (value: any) => {
+		console.log(value);
+
 		setIsLoading(true);
 		const data = await axios.get(
 			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&search=${filterValue}&value=${page}`,
@@ -131,7 +114,7 @@ const CategoryData = (props: IProps) => {
 			}
 		);
 
-		setDataValue(data?.data?.data?.content);
+		setDataValue(data?.data?.data?.parent);
 		setRowsPerPage(value);
 
 		await getData();
@@ -140,6 +123,8 @@ const CategoryData = (props: IProps) => {
 
 		return data;
 	};
+
+	console.log(dataValue);
 
 	const deleteData = async (id: string) => {
 		try {
@@ -212,7 +197,7 @@ const CategoryData = (props: IProps) => {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...dataValue];
+		let filteredUsers = [...category];
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>
@@ -221,7 +206,7 @@ const CategoryData = (props: IProps) => {
 		}
 
 		return filteredUsers;
-	}, [dataValue, filterValue]);
+	}, [category, filterValue]);
 
 	const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -233,9 +218,9 @@ const CategoryData = (props: IProps) => {
 	}, [page, filteredItems, rowsPerPage]);
 
 	const sortedItems = React.useMemo(() => {
-		return [...items].sort((a: User, b: User) => {
-			const first = a[sortDescriptor.column as keyof User] as number;
-			const second = b[sortDescriptor.column as keyof User] as number;
+		return [...category].sort((a: User, b: User) => {
+			const first = a;
+			const second = b;
 			const cmp = first < second ? -1 : first > second ? 1 : 0;
 
 			return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -308,100 +293,6 @@ const CategoryData = (props: IProps) => {
 		setPage(1);
 	}, []);
 
-	const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-		const cellValue = user[columnKey as keyof User];
-		const d = filterData.map(item => item.hasChildren);
-
-		if (d) {
-			const idf = filterData.filter(item => item.id === user.id);
-
-			setGetId(idf);
-		}
-
-		switch (columnKey) {
-			case 'rasm':
-				return (
-					<div className='flex flex-col '>
-						<p className='text-bold  text-lg  capitalize text-default-400'>
-							<Image
-								src={
-									'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
-								}
-								width={'180'}
-								height={'180'}
-								className='rounded-xl'
-								alt='image'
-							/>
-						</p>
-					</div>
-				);
-			case 'kategoriya':
-				return (
-					<div className='flex flex-col'>
-						<p className='text-bold   text-lg capitalize text-default-400'>
-							{user.name}
-						</p>
-					</div>
-				);
-
-			case 'child category':
-				return (
-					<>
-						<Chip
-							size='md'
-							variant={user.hasChildren ? 'faded' : 'light'}
-							className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
-						>
-							<Link
-								href={
-									user.hasChildren || user?.childCategories?.length
-										? `/categories/category-detail/${user.id}`
-										: '/categories'
-								}
-							>
-								<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
-									{user.hasChildren || user?.childCategories?.length ? (
-										<FaArrowRight />
-									) : (
-										''
-									)}
-								</p>
-							</Link>
-						</Chip>
-					</>
-				);
-
-			case 'actions':
-				return (
-					<div className='relative flex justify-end items-center gap-2'>
-						{contextHolder}
-						<Dropdown>
-							<DropdownTrigger>
-								<Button isIconOnly size='sm' variant='light'>
-									<VerticalDotsIcon
-										className='text-default-300'
-										width={100}
-										height={100}
-									/>
-								</Button>
-							</DropdownTrigger>
-							<DropdownMenu>
-								<DropdownItem>View</DropdownItem>
-								<DropdownItem onClick={() => updateData(user.id)}>
-									Edit
-								</DropdownItem>
-								<DropdownItem onClick={() => deleteData(user.id)}>
-									Delete
-								</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
-					</div>
-				);
-			default:
-				return cellValue;
-		}
-	}, []);
-
 	const topContent = React.useMemo(() => {
 		return (
 			<div className='flex flex-col gap-4'>
@@ -449,6 +340,7 @@ const CategoryData = (props: IProps) => {
 						></Select>
 					</label>
 				</div>
+				<BreadcrumbsContainer data={dataValue} />
 			</div>
 		);
 	}, [
@@ -500,43 +392,113 @@ const CategoryData = (props: IProps) => {
 	}, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
 	return (
-		<Table
-			aria-label='Example table with custom cells, pagination and sorting'
-			isHeaderSticky
-			bottomContent={bottomContent}
-			bottomContentPlacement='outside'
-			classNames={{
-				wrapper: 'max-h-[582px]',
-			}}
-			selectedKeys={selectedKeys}
-			sortDescriptor={sortDescriptor}
-			topContent={topContent}
-			topContentPlacement='outside'
-			onSelectionChange={setSelectedKeys}
-			onSortChange={setSortDescriptor}
-		>
-			<TableHeader columns={headerColumns}>
-				{column => (
-					<TableColumn
-						key={column.uid}
-						align={column.uid === 'actions' ? 'center' : 'start'}
-						allowsSorting={column.sortable}
-					>
-						{column.name}
-					</TableColumn>
-				)}
-			</TableHeader>
-			<TableBody emptyContent={'No users found'} items={sortedItems}>
-				{item => (
-					<TableRow
-						key={item.id}
-						className='border-b-2 mb-2 border-b-gray-500 mt-3'
-					>
-						{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-					</TableRow>
-				)}
-			</TableBody>
-		</Table>
+		<div>
+			<h1 className='text-lg mt-3 mb-5'>
+				<span className='text-2xl'>{dataValue?.name}</span>
+			</h1>
+			<Table
+				aria-label='Example table with custom cells, pagination and sorting'
+				isHeaderSticky
+				bottomContent={bottomContent}
+				bottomContentPlacement='outside'
+				classNames={{
+					wrapper: 'max-h-[582px]',
+				}}
+				selectedKeys={selectedKeys}
+				sortDescriptor={sortDescriptor}
+				topContent={topContent}
+				topContentPlacement='outside'
+				onSelectionChange={setSelectedKeys}
+				onSortChange={setSortDescriptor}
+			>
+				<TableHeader columns={headerColumns}>
+					{column => (
+						<TableColumn
+							key={column.uid}
+							align={column.uid === 'actions' ? 'center' : 'start'}
+							allowsSorting={column.sortable}
+						>
+							{column.name}
+						</TableColumn>
+					)}
+				</TableHeader>
+				<TableBody emptyContent={'No users found'} items={sortedItems}>
+					{item => (
+						<TableRow
+							key={dataValue.id}
+							className='border-b-2 mb-2 border-b-gray-500 mt-3'
+						>
+							<TableCell>
+								<div className='flex flex-col '>
+									<p className='text-bold  text-lg  capitalize text-default-400'>
+										<Image
+											src={
+												'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
+											}
+											width={'180'}
+											height={'180'}
+											className='rounded-xl'
+											alt='image'
+										/>
+									</p>
+								</div>
+							</TableCell>
+							<TableCell>
+								<div className='flex flex-col'>
+									<p className='text-bold   text-lg capitalize text-default-400'>
+										{item?.category}
+									</p>
+								</div>
+							</TableCell>
+							<TableCell>
+								<Chip
+									size='md'
+									variant={'faded'}
+									className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
+								>
+									<Link
+										href={
+											item?.child_category
+												? `/category-details/${dataValue.id}`
+												: '/categories'
+										}
+									>
+										<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
+											{item?.child_category ? <FaArrowRight /> : ''}
+										</p>
+									</Link>
+								</Chip>
+							</TableCell>
+							<TableCell>
+								<div className='relative flex justify-end items-center gap-2'>
+									{contextHolder}
+									<Dropdown>
+										<DropdownTrigger>
+											<Button isIconOnly size='sm' variant='light'>
+												<VerticalDotsIcon
+													className='text-default-300'
+													width={100}
+													height={100}
+												/>
+											</Button>
+										</DropdownTrigger>
+										<DropdownMenu>
+											<DropdownItem>View</DropdownItem>
+											<DropdownItem onClick={() => updateData(dataValue.id)}>
+												Edit
+											</DropdownItem>
+											<DropdownItem onClick={() => deleteData(dataValue.id)}>
+												Delete
+											</DropdownItem>
+										</DropdownMenu>
+									</Dropdown>
+								</div>
+							</TableCell>
+						</TableRow>
+					)}
+				</TableBody>
+			</Table>
+		</div>
 	);
 };
 
