@@ -31,13 +31,13 @@ import { FaArrowRight } from 'react-icons/fa';
 import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
 import { category, columns } from './data';
 
-interface ICategory {
+export interface ICategory {
 	id: number;
 	name: string;
 	childCategory: [];
 }
 
-interface IProps {
+export interface IProps {
 	id: string;
 	updateCategories: any;
 	openUpdate: (id: string) => void;
@@ -47,10 +47,8 @@ interface IProps {
 
 const CategoryData = (props: IProps) => {
 	const { id } = useParams<{ id: string }>();
-	const [getDetailParams, setGetDetailsParams] = useState();
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [getId, setGetId] = useState<ISearch[]>([]);
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = [
