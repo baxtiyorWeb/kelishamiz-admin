@@ -51,7 +51,7 @@ export default function CategoryData({
 	setUpdateCategories,
 }: IProps) {
 	const { id } = useParams<{ id: string }>();
-	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
+	const [dataValue, setDataValue] = useState<any>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
@@ -71,15 +71,16 @@ export default function CategoryData({
 	};
 	// /category/list?page=0&size=10&parentId=53
 	const getData = async () => {
-		const response = await api.get(`/category/${id}`);
+		const response = await api.get(`category/${id}`);
 
-		console.log(response.data?.data);
 		setDataValue(response.data?.data);
 	};
 
 	useEffect(() => {
 		getData();
 	}, []);
+
+	console.log(dataValue?.parent);
 
 	const filterSearchCategory = async (value: any) => {
 		setIsLoading(true);
@@ -126,7 +127,7 @@ export default function CategoryData({
 		return data;
 	};
 
-	console.log(dataValue);
+	console.log(dataValue?.parent);
 
 	const deleteData = async (id: string) => {
 		try {
@@ -220,7 +221,7 @@ export default function CategoryData({
 	}, [page, filteredItems, rowsPerPage]);
 
 	const sortedItems = React.useMemo(() => {
-		return [...category].sort((a: User, b: User) => {
+		return [...dataValue].sort((a: 1, b: 1) => {
 			const first = a;
 			const second = b;
 			const cmp = first < second ? -1 : first > second ? 1 : 0;
@@ -424,80 +425,78 @@ export default function CategoryData({
 						</TableColumn>
 					)}
 				</TableHeader>
-				<TableBody emptyContent={'No users found'} items={sortedItems}>
-					{item => (
-						<TableRow
-							key={dataValue.id}
-							className='border-b-2 mb-2 border-b-gray-500 mt-3'
-						>
-							<TableCell>
-								<div className='flex flex-col '>
-									<p className='text-bold  text-lg  capitalize text-default-400'>
-										<Image
-											src={
-												'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
-											}
-											width={'180'}
-											height={'180'}
-											className='rounded-xl'
-											alt='image'
-										/>
-									</p>
-								</div>
-							</TableCell>
-							<TableCell>
-								<div className='flex flex-col'>
-									<p className='text-bold   text-lg capitalize text-default-400'>
-										{item?.category}
-									</p>
-								</div>
-							</TableCell>
-							<TableCell>
-								<Chip
-									size='md'
-									variant={'faded'}
-									className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
-								>
-									<Link
-										href={
-											item?.child_category
-												? `/category-details/${dataValue.id}`
-												: '/categories'
+				<TableBody>
+					<TableRow
+						key={dataValue.id}
+						className='border-b-2 mb-2 border-b-gray-500 mt-3'
+					>
+						<TableCell>
+							<div className='flex flex-col '>
+								<p className='text-bold  text-lg  capitalize text-default-400'>
+									<Image
+										src={
+											'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
 										}
-									>
-										<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
-											{item?.child_category ? <FaArrowRight /> : ''}
-										</p>
-									</Link>
-								</Chip>
-							</TableCell>
-							<TableCell>
-								<div className='relative flex justify-end items-center gap-2'>
-									{contextHolder}
-									<Dropdown>
-										<DropdownTrigger>
-											<Button isIconOnly size='sm' variant='light'>
-												<VerticalDotsIcon
-													className='text-default-300'
-													width={100}
-													height={100}
-												/>
-											</Button>
-										</DropdownTrigger>
-										<DropdownMenu>
-											<DropdownItem>View</DropdownItem>
-											<DropdownItem onClick={() => updateData(dataValue.id)}>
-												Edit
-											</DropdownItem>
-											<DropdownItem onClick={() => deleteData(dataValue.id)}>
-												Delete
-											</DropdownItem>
-										</DropdownMenu>
-									</Dropdown>
-								</div>
-							</TableCell>
-						</TableRow>
-					)}
+										width={'180'}
+										height={'180'}
+										className='rounded-xl'
+										alt='image'
+									/>
+								</p>
+							</div>
+						</TableCell>
+						<TableCell>
+							<div className='flex flex-col'>
+								<p className='text-bold   text-lg capitalize text-default-400'>
+									{dataValue?.parent?.name || dataValue?.name}
+								</p>
+							</div>
+						</TableCell>
+						<TableCell>
+							<Chip
+								size='md'
+								variant={'faded'}
+								className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
+							>
+								<Link
+									href={
+										dataValue?.parent
+											? `/categories/category-detail/${dataValue?.parent?.id}?`
+											: '/categories'
+									}
+								>
+									<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
+										{dataValue?.parent === null ? '' : <FaArrowRight />}
+									</p>
+								</Link>
+							</Chip>
+						</TableCell>
+						<TableCell>
+							<div className='relative flex justify-end items-center gap-2'>
+								{contextHolder}
+								<Dropdown>
+									<DropdownTrigger>
+										<Button isIconOnly size='sm' variant='light'>
+											<VerticalDotsIcon
+												className='text-default-300'
+												width={100}
+												height={100}
+											/>
+										</Button>
+									</DropdownTrigger>
+									<DropdownMenu>
+										<DropdownItem>View</DropdownItem>
+										<DropdownItem onClick={() => updateData(dataValue.id)}>
+											Edit
+										</DropdownItem>
+										<DropdownItem onClick={() => deleteData(dataValue.id)}>
+											Delete
+										</DropdownItem>
+									</DropdownMenu>
+								</Dropdown>
+							</div>
+						</TableCell>
+					</TableRow>
 				</TableBody>
 			</Table>
 		</div>

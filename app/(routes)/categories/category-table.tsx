@@ -1,6 +1,7 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
+import api from '@@/config/api';
 import {
 	Button,
 	Chip,
@@ -51,7 +52,7 @@ interface IProps {
 const CategoryData = (props: IProps) => {
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [getId, setGetId] = useState<ISearch[]>([]);
+	const [getId, setGetId] = useState();
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = [
@@ -71,7 +72,7 @@ const CategoryData = (props: IProps) => {
 	const getData = async () => {
 		try {
 			const data = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/all`,
+				`http://95.130.227.131:8080/api/v1/category/list?page=0&size=10&parentId=null`,
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -79,32 +80,39 @@ const CategoryData = (props: IProps) => {
 				}
 			);
 
-			return data.data?.data.reduce((result: any, value: any) => {
-				if (Array.isArray(value)) {
-					return [...result, ...getData(value)];
-				}
+			setDataValue(data.data?.data?.content);
+			// return data.data?.data.reduce((result: any, value: any) => {
+			// 	if (Array.isArray(value)) {
+			// 		return [...result, ...getData(value)];
+			// 	}
 
-				setDataValue([...result, value]);
+			// 	setDataValue([...result, value]);
 
-				return [...result, value];
-			}, []);
+			// 	return [...result, value];
+			// }, []);
 		} catch (error) {
 			console.log(error);
 		}
+	};
+
+	const requestParam = async () => {
+		const response = await api.get(
+			`/category/list?page=0&size=10&parentId=${getId}`
+		);
+		const fetchData = response.data;
+		console.log(fetchData.data);
 	};
 
 	useEffect(() => {
 		getData();
 	}, []);
 
-	console.log(dataValue);
-
 	const filterSearchCategory = async (value: any) => {
 		setIsLoading(true);
 		const data = await axios.get(
 			`http://95.130.227.131:8080/api/v1/category/list?page=${
 				page - 1
-			}&size=10&parentId=null&search=${value}`,
+			}&size=10&search=${value}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -112,9 +120,8 @@ const CategoryData = (props: IProps) => {
 			}
 		);
 
-		setFilterData(data.data.data.content);
-
-		const values = filterData.map(item => item.hasChildren);
+		setFilterData(data.data?.data?.content);
+		console.log(data.data);
 
 		setIsLoading(false);
 		return data;
@@ -285,23 +292,26 @@ const CategoryData = (props: IProps) => {
 		[]
 	);
 
-	const onSearchChange = React.useCallback(async (value?: string) => {
-		if (value) {
-			setFilterValue(value);
-			setIsLoading(true);
-			const { data } = await filterSearchCategory(value);
-			const filter = data?.data;
-			const filterResult = filter?.content?.filter((user: any) =>
-				user.name.toLowerCase().includes(filterValue.toLowerCase())
-			);
+	const onSearchChange = React.useCallback(
+		async (value?: string, e?: React.KeyboardEvent<HTMLInputElement>) => {
+			if (value) {
+				setFilterValue(value);
+				setIsLoading(true);
+				const { data } = await filterSearchCategory(value);
+				const filter = data?.data;
+				const filterResult = filter?.content?.filter((user: any) =>
+					user.name.toLowerCase().includes(filterValue.toLowerCase())
+				);
 
-			const filterSearch = filterResult?.map((item: any) => item);
-			setFilterData(filterSearch);
-			setPage(1);
-		} else {
-			setFilterValue('');
-		}
-	}, []);
+				const filterSearch = filterResult?.map((item: any) => item);
+				setFilterData(filterSearch);
+				setPage(1);
+			} else {
+				setFilterValue('');
+			}
+		},
+		[]
+	);
 
 	const onClear = React.useCallback(() => {
 		setFilterValue('');
@@ -311,12 +321,7 @@ const CategoryData = (props: IProps) => {
 	const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
 		const cellValue = user[columnKey as keyof User];
 		const d = filterData.map(item => item.hasChildren);
-
-		if (d) {
-			const idf = filterData.filter(item => item.id === user.id);
-
-			setGetId(idf);
-		}
+		console.log(getId);
 
 		switch (columnKey) {
 			case 'rasm':
