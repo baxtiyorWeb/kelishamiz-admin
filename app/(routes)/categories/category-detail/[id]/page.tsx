@@ -59,7 +59,13 @@ const CategoryDetails = () => {
 	const getData = async () => {
 		try {
 			const response = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/${id}`
+				`http://95.130.227.131:8080/api/v1/category/${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+						'Content-Type': 'application/json',
+					},
+				}
 			);
 
 			setDataValue(response.data?.data);

@@ -13,23 +13,6 @@ interface ICategoryValue {
 	childCategory: [];
 }
 
-interface ICategoryUpdate {
-	name: {
-		uz: string;
-		ru: string;
-		en: string;
-	};
-	image: string;
-	parentId: number;
-	categoryPropertyForms: [
-		{
-			id: number;
-			propertyId: number;
-			deleted: boolean;
-		}
-	];
-}
-
 const UpdateProperties = (props: IProps) => {
 	const [dataValue, setDataValue] = useState<ICategoryValue[]>([]);
 	const [option, setOption] = useState<string>();
