@@ -1,7 +1,6 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
-import api from '@@/config/api';
 import {
 	Button,
 	Chip,
@@ -94,15 +93,6 @@ const CategoryData = (props: IProps) => {
 			console.log(error);
 		}
 	};
-
-	const requestParam = async () => {
-		const response = await api.get(
-			`/category/list?page=0&size=10&parentId=${getId}`
-		);
-		const fetchData = response.data;
-		console.log(fetchData.data);
-	};
-
 	useEffect(() => {
 		getData();
 	}, []);
