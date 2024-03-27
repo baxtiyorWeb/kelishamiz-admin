@@ -209,7 +209,7 @@ const CategoryData = (props: IProps) => {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...filterData];
+		let filteredUsers = [...dataValue];
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>

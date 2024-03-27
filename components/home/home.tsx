@@ -1,6 +1,6 @@
 'use client';
-import api from '@@/config/api';
 import { message } from 'antd';
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import CardsProudct from '../cards_view/card_product';
@@ -13,14 +13,22 @@ const Home = () => {
 	const router = useRouter();
 	const getUser = async () => {
 		try {
-			const response = await api.get('user/1');
+			const response = await axios.get(
+				'http://95.130.227.131:8080/api/v1/category/user/1',
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			);
 			if (response.status === 200) {
 				message.success('logged in');
 			} else {
 				message.success('please login ');
 			}
 		} catch (error) {
-			router.push('/login');
+			// router.push('/login');
 		}
 	};
 

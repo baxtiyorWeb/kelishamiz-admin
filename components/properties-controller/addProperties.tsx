@@ -25,7 +25,7 @@ const AddProperties = () => {
 	const getData = async () => {
 		try {
 			const { data } = await axios.get(
-				'http://kelishamiz.uz/api/v1/value-type/list',
+				'http://95.130.227.131:8080/api/v1/value-type/list',
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -41,7 +41,7 @@ const AddProperties = () => {
 	const propertyPost = async () => {
 		setIsLoading(true);
 		const data = await axios.post(
-			'http://kelishamiz.uz/api/v1/property',
+			'http://95.130.227.131:8080/api/v1/property',
 			{
 				name: {
 					uz: lang.uz,

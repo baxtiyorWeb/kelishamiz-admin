@@ -1,7 +1,6 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
-import api from '@@/config/api';
 import { ISearch } from '@@/interface/interface';
 import {
 	Button,
@@ -59,7 +58,9 @@ const CategoryDetails = () => {
 	// /category/list?page=0&size=10&parentId=53
 	const getData = async () => {
 		try {
-			const response = await api.get(`category/${id}`);
+			const response = await axios.get(
+				`http://95.130.227.131:8080/api/v1/category/${id}`
+			);
 
 			setDataValue(response.data?.data);
 		} catch (errors: any) {
