@@ -22,6 +22,10 @@ axios.interceptors.response.use(
 				] = `Bearer ${localStorage.getItem('refreshToken')}`;
 				return axios(error.config);
 			}
+
+			if (response.status === 403) {
+				alert('error');
+			}
 		}
 		return error;
 	}

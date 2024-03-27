@@ -69,11 +69,21 @@ export default function CategoryData({
 			content: "ma'lumot  o'chirildi",
 		});
 	};
+	const error = (error: string) => {
+		messageApi.open({
+			type: 'error',
+			content: error,
+		});
+	};
 	// /category/list?page=0&size=10&parentId=53
 	const getData = async () => {
-		const response = await api.get(`category/${id}`);
+		try {
+			const response = await api.get(`category/${id}`);
 
-		setDataValue(response.data?.data);
+			setDataValue(response.data?.data);
+		} catch (errors) {
+			error(errors.message);
+		}
 	};
 
 	useEffect(() => {

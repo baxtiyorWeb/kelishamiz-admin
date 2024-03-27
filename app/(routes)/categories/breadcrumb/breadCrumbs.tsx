@@ -35,7 +35,7 @@ const Breadcrumbs = ({ data }: BreadcrumbsProps) => {
 				<span className='text-lg font-bold text-sky-500' key={crumb?.id}>
 					<Link
 						className='hover:underline'
-						href={`/categories/category-detail/${crumb?.id}?page=0&size=10&parentId=${crumb?.id}`}
+						href={`/categories/category-detail/${crumb?.id}`}
 					>
 						{crumb?.name}
 						{index < breadcrumbs.length - 1 && (
