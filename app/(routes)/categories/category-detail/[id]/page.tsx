@@ -73,7 +73,6 @@ const CategoryDetails = () => {
 			error(errors.message);
 		}
 	};
-
 	useEffect(() => {
 		getData();
 	}, []);

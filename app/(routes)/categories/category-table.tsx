@@ -51,7 +51,7 @@ interface IProps {
 const CategoryData = (props: IProps) => {
 	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [getId, setGetId] = useState();
+	const [getId, setGetId] = useState(null);
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = [
@@ -311,7 +311,6 @@ const CategoryData = (props: IProps) => {
 	const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
 		const cellValue = user[columnKey as keyof User];
 		const d = filterData.map(item => item.hasChildren);
-		console.log(getId);
 
 		switch (columnKey) {
 			case 'rasm':
@@ -348,6 +347,7 @@ const CategoryData = (props: IProps) => {
 							className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
 						>
 							<Link
+								onClick={() => setGetId(user.id)}
 								href={
 									user.hasChildren || user?.childCategories?.length
 										? `/categories/category-detail/${user.id}`
