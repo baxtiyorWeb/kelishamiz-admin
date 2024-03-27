@@ -26,30 +26,11 @@ import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
 import { category, columns } from './data';
-
-interface ICategory {
-	id: number;
-	name: string;
-	childCategory: [];
-}
-
-interface IProps {
-	id: string;
-	updateCategories: any;
-	openUpdate: (id: string) => void;
-	setUpdateId: Dispatch<SetStateAction<any>>;
-	setUpdateCategories: Dispatch<SetStateAction<any>>;
-}
-
-export default function CategoryData({
-	openUpdate,
-	setUpdateId,
-	setUpdateCategories,
-}: IProps) {
+const CategoryDetails = () => {
 	const { id } = useParams<{ id: string }>();
 	const [dataValue, setDataValue] = useState<any>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +62,7 @@ export default function CategoryData({
 			const response = await api.get(`category/${id}`);
 
 			setDataValue(response.data?.data);
-		} catch (errors) {
+		} catch (errors: any) {
 			error(errors.message);
 		}
 	};
@@ -159,31 +140,6 @@ export default function CategoryData({
 			setIsLoading(false);
 		}
 	};
-	const updateGetData = async (id: string) => {
-		try {
-			setIsLoading(true);
-			const data = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/${id}`,
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-					},
-				}
-			);
-			setUpdateCategories(data?.data?.data);
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const updateData = async (id: string) => {
-		setUpdateId(id);
-		openUpdate(id);
-
-		updateGetData(id);
-	};
 
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
 		new Set([])
@@ -210,7 +166,7 @@ export default function CategoryData({
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...category];
+		let filteredUsers = [...filterData];
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>
@@ -496,9 +452,7 @@ export default function CategoryData({
 									</DropdownTrigger>
 									<DropdownMenu>
 										<DropdownItem>View</DropdownItem>
-										<DropdownItem onClick={() => updateData(dataValue.id)}>
-											Edit
-										</DropdownItem>
+										<DropdownItem>Edit</DropdownItem>
 										<DropdownItem onClick={() => deleteData(dataValue.id)}>
 											Delete
 										</DropdownItem>
@@ -511,4 +465,6 @@ export default function CategoryData({
 			</Table>
 		</div>
 	);
-}
+};
+
+export default CategoryDetails;

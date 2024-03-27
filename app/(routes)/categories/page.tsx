@@ -12,7 +12,7 @@ export default function Categories() {
 	const [showAddCateg, setShowAddCateg] = React.useState(false);
 	const [updateShowAddCateg, setUpdateShowAddCateg] = React.useState(false);
 	const [updateCategories, setUpdateCategories] = useState();
-	const [updateId, setUpdateId] = useState();
+	const [updateId, setUpdateId] = useState<any>();
 	const showElement = (): void => {
 		setShowAddCateg(!showAddCateg);
 		document.body.style.overflow = 'hidden';
@@ -44,6 +44,8 @@ export default function Categories() {
 				</button>
 			</div>
 			<CategoryData
+				id={updateId}
+				updateCategories={updateCategories}
 				openUpdate={() => showElementUpdate()}
 				setUpdateId={setUpdateId}
 				setUpdateCategories={setUpdateCategories}

@@ -1,24 +1,12 @@
-// // Breadcrumb.tsx
 'use client';
 
 import Link from 'next/link';
 
-interface Category {
-	id: number;
-	name: string;
-	image: string;
-	parent?: Category;
-	properties: any;
-}
-
 interface BreadcrumbsProps {
-	data: Category;
+	data: any;
 }
 
-import { useParams } from 'next/navigation';
 const Breadcrumbs = ({ data }: BreadcrumbsProps) => {
-	const { id } = useParams<{ id: string }>();
-
 	function generateBreadcrumbs(node: any, breadcrumbs = []) {
 		if (!node) return breadcrumbs;
 

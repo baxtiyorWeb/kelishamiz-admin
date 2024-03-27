@@ -41,7 +41,7 @@ interface ISearch {
 }
 
 interface IProps {
-	id: string;
+	id: any;
 	updateCategories: any;
 	openUpdate: (id: string) => void;
 	setUpdateId: Dispatch<SetStateAction<any>>;
@@ -209,7 +209,7 @@ const CategoryData = (props: IProps) => {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...dataValue];
+		let filteredUsers = [...filterData];
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>
