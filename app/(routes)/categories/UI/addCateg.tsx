@@ -11,6 +11,7 @@ const DynamicInput = () => {
 
 	interface IProperties {}
 	const [property, setProperty] = useState<IProperties[]>();
+	const [parentId, setParentId] = useState<number | any>();
 	const [lang, setLang] = useState({ uz: '', ru: '', en: '' });
 	const [optionValue, setOptionValue] = useState('');
 	const [messageApi, contextHolder] = message.useMessage();
@@ -106,6 +107,17 @@ const DynamicInput = () => {
 									onChange={e => setLang({ ...lang, ru: e.target.value })}
 								/>
 							</div>
+
+							<div>
+								<Input
+									className='mt-3 mb-5 mr-5 ml-1'
+									label='name_ru'
+									type='number'
+									onChange={e =>
+										setParentId({ ...lang, parentId: e.target.value })
+									}
+								/>
+							</div>
 						</div>
 
 						<div className='grid grid-cols-1 gap-5'>
@@ -128,7 +140,13 @@ const DynamicInput = () => {
 							title='save'
 							color='primary'
 							onClick={() =>
-								createCategoryPost(optionValue, lang.uz, lang.en, lang.ru)
+								createCategoryPost(
+									optionValue,
+									lang.uz,
+									lang.en,
+									lang.ru,
+									parentId
+								)
 							}
 							// className='absolute right-5 bottom-5'
 						>

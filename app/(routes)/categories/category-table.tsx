@@ -71,7 +71,7 @@ const CategoryData = (props: IProps) => {
 	const getData = async () => {
 		try {
 			const data = await axios.get(
-				`http://95.130.227.131:8080/api/v1/category/list?page=0&size=10&parentId=null`,
+				`http://95.130.227.131:8080/api/v1/category/list?page=0&size=10&parentId=`,
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -80,6 +80,8 @@ const CategoryData = (props: IProps) => {
 			);
 
 			setDataValue(data.data?.data?.content);
+			console.log(data.data?.data?.content);
+
 			// return data.data?.data.reduce((result: any, value: any) => {
 			// 	if (Array.isArray(value)) {
 			// 		return [...result, ...getData(value)];

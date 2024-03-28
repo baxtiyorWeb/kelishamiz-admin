@@ -1,7 +1,6 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
-import { ISearch } from '@@/interface/interface';
 import {
 	Button,
 	Chip,
@@ -10,6 +9,7 @@ import {
 	DropdownMenu,
 	DropdownTrigger,
 	Input,
+	Link,
 	Pagination,
 	Selection,
 	SortDescriptor,
@@ -23,16 +23,39 @@ import {
 import { Select, message } from 'antd';
 import axios from 'axios';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
-import { category, columns } from './data';
-const CategoryDetails = () => {
+import { columns } from './data';
+
+interface ICategory {
+	id: number;
+	name: string;
+	childCategory: [];
+}
+
+interface ISearch {
+	id: number;
+	name: string;
+	hasChildren: boolean;
+	image: string;
+}
+
+interface IProps {
+	id: any;
+	updateCategories: any;
+	openUpdate: (id: string) => void;
+	setUpdateId: Dispatch<SetStateAction<any>>;
+	setUpdateCategories: Dispatch<SetStateAction<any>>;
+}
+
+const CategoryData = (props: IProps) => {
 	const { id } = useParams<{ id: string }>();
-	const [dataValue, setDataValue] = useState<any>([]);
+	const [dataValue, setDataValue] = useState<ICategory[] | any>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [getId, setGetId] = useState(null);
+	const [categoryId, setCategoryId] = useState();
 	const [filterValue, setFilterValue] = React.useState('');
 	const [filterData, setFilterData] = React.useState<ISearch[]>([]);
 	const INITIAL_VISIBLE_COLUMNS = [
@@ -49,35 +72,65 @@ const CategoryDetails = () => {
 			content: "ma'lumot  o'chirildi",
 		});
 	};
-	const error = (error: string) => {
-		messageApi.open({
-			type: 'error',
-			content: error,
-		});
-	};
-	// /category/list?page=0&size=10&parentId=53
-	const getData = async () => {
+	const getCategoryId = async () => {
 		try {
 			const response = await axios.get(
 				`http://95.130.227.131:8080/api/v1/category/${id}`,
 				{
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-						'Content-Type': 'application/json',
 					},
 				}
 			);
+			setCategoryId(response.data?.data);
 
-			setDataValue(response.data?.data);
-		} catch (errors: any) {
-			error(errors.message);
+			// return data.data?.data.reduce((result: any, value: any) => {
+			// 	if (Array.isArray(value)) {
+			// 		return [...result, ...getCategoryList(value)];
+			// 	}
+
+			// 	setDataValue([...result, value]);
+
+			// 	return [...result, value];
+			// }, []);
+		} catch (error) {
+			console.log(error);
 		}
 	};
-	useEffect(() => {
-		getData();
-	}, []);
+	const getCategoryList = async () => {
+		try {
+			setIsLoading(true);
 
-	console.log(dataValue?.parent);
+			const data = await axios.get(
+				`http://95.130.227.131:8080/api/v1/category/list?page=0&size=10&parentId=${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			setDataValue(data.data?.data?.content);
+
+			// return data.data?.data.reduce((result: any, value: any) => {
+			// 	if (Array.isArray(value)) {
+			// 		return [...result, ...getCategoryList(value)];
+			// 	}
+
+			// 	setDataValue([...result, value]);
+
+			// 	return [...result, value];
+			// }, []);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		getCategoryId();
+		getCategoryList();
+	}, []);
 
 	const filterSearchCategory = async (value: any) => {
 		setIsLoading(true);
@@ -92,21 +145,17 @@ const CategoryDetails = () => {
 			}
 		);
 
-		setFilterData(data.data.data.parent);
-		console.log(data.data.data.parent);
-
-		const values = filterData.map(item => item.hasChildren);
+		setFilterData(data.data?.data?.content);
+		console.log(data.data);
 
 		setIsLoading(false);
 		return data;
 	};
 
 	const filterOptionCategory = async (value: any) => {
-		console.log(value);
-
 		setIsLoading(true);
 		const data = await axios.get(
-			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&page=${page}&search=${filterValue}`,
+			`http://95.130.227.131:8080/api/v1/category/list?size=${value}&search=${filterValue}`,
 			{
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -114,17 +163,15 @@ const CategoryDetails = () => {
 			}
 		);
 
-		setDataValue(data?.data?.data?.parent);
+		setDataValue(data?.data?.data?.content);
 		setRowsPerPage(value);
 
-		await getData();
+		await getCategoryList();
 
 		setIsLoading(false);
 
 		return data;
 	};
-
-	console.log(dataValue?.parent);
 
 	const deleteData = async (id: string) => {
 		try {
@@ -138,13 +185,40 @@ const CategoryDetails = () => {
 					},
 				}
 			);
-			await getData();
+			await getCategoryList();
 			success();
 		} catch (error) {
 			console.log(error);
 		} finally {
 			setIsLoading(false);
 		}
+	};
+	const updateGetCategoryList = async (id: string) => {
+		try {
+			setIsLoading(true);
+			const data = await axios.get(
+				`http://95.130.227.131:8080/api/v1/category/${id}`,
+				{
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+					},
+				}
+			);
+			props.setUpdateCategories(data?.data?.data);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	console.log(dataValue);
+
+	const updateData = async (id: string) => {
+		props.setUpdateId(id);
+		props.openUpdate(id);
+
+		updateGetCategoryList(id);
 	};
 
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
@@ -172,7 +246,7 @@ const CategoryDetails = () => {
 	}, [visibleColumns]);
 
 	const filteredItems = React.useMemo(() => {
-		let filteredUsers = [...filterData];
+		let filteredUsers = [...dataValue];
 
 		if (hasSearchFilter) {
 			filteredUsers = filterData.filter(user =>
@@ -181,7 +255,7 @@ const CategoryDetails = () => {
 		}
 
 		return filteredUsers;
-	}, [category, filterValue]);
+	}, [dataValue, filterValue]);
 
 	const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -193,9 +267,9 @@ const CategoryDetails = () => {
 	}, [page, filteredItems, rowsPerPage]);
 
 	const sortedItems = React.useMemo(() => {
-		return [...dataValue].sort((a: 1, b: 1) => {
-			const first = a;
-			const second = b;
+		return [...items].sort((a: User, b: User) => {
+			const first = a[sortDescriptor.column as keyof User] as number;
+			const second = b[sortDescriptor.column as keyof User] as number;
 			const cmp = first < second ? -1 : first > second ? 1 : 0;
 
 			return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -245,27 +319,117 @@ const CategoryDetails = () => {
 		[]
 	);
 
-	const onSearchChange = React.useCallback(async (value?: string) => {
-		if (value) {
-			setFilterValue(value);
-			setIsLoading(true);
-			const { data } = await filterSearchCategory(value);
-			const filter = data?.data;
-			const filterResult = filter?.content?.filter((user: any) =>
-				user.name.toLowerCase().includes(filterValue.toLowerCase())
-			);
+	console.log(categoryId);
 
-			const filterSearch = filterResult?.map((item: any) => item);
-			setFilterData(filterSearch);
-			setPage(1);
-		} else {
-			setFilterValue('');
-		}
-	}, []);
+	const onSearchChange = React.useCallback(
+		async (value?: string, e?: React.KeyboardEvent<HTMLInputElement>) => {
+			if (value) {
+				setFilterValue(value);
+				setIsLoading(true);
+				const { data } = await filterSearchCategory(value);
+				const filter = data?.data;
+				const filterResult = filter?.content?.filter((user: any) =>
+					user.name.toLowerCase().includes(filterValue.toLowerCase())
+				);
+
+				const filterSearch = filterResult?.map((item: any) => item);
+				setFilterData(filterSearch);
+				setPage(1);
+			} else {
+				setFilterValue('');
+			}
+		},
+		[]
+	);
 
 	const onClear = React.useCallback(() => {
 		setFilterValue('');
 		setPage(1);
+	}, []);
+
+	const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
+		const cellValue = user[columnKey as keyof User];
+
+		switch (columnKey) {
+			case 'rasm':
+				return (
+					<div className='flex flex-col '>
+						<p className='text-bold  text-lg  capitalize text-default-400'>
+							<Image
+								src={
+									'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
+								}
+								width={'180'}
+								height={'180'}
+								className='rounded-xl'
+								alt='image'
+							/>
+						</p>
+					</div>
+				);
+			case 'kategoriya':
+				return (
+					<div className='flex flex-col'>
+						<p className='text-bold   text-lg capitalize text-default-400'>
+							{user.name}
+						</p>
+					</div>
+				);
+
+			case 'child category':
+				return (
+					<>
+						<Chip
+							size='md'
+							variant={user.hasChildren ? 'faded' : 'light'}
+							className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
+						>
+							<Link
+								className='flex justify-center items-center'
+								onClick={() => setGetId(user.id)}
+								href={
+									user.hasChildren
+										? `/categories/category-detail/${user.id}`
+										: '/categories'
+								}
+							>
+								<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
+									{user?.hasChildren ? <FaArrowRight /> : ''}
+								</p>
+							</Link>
+						</Chip>
+					</>
+				);
+
+			case 'actions':
+				return (
+					<div className='relative flex justify-end items-center gap-2'>
+						{contextHolder}
+						<Dropdown>
+							<DropdownTrigger>
+								<Button isIconOnly size='sm' variant='light'>
+									<VerticalDotsIcon
+										className='text-default-300'
+										width={100}
+										height={100}
+									/>
+								</Button>
+							</DropdownTrigger>
+							<DropdownMenu>
+								<DropdownItem>View</DropdownItem>
+								<DropdownItem onClick={() => updateData(user.id)}>
+									Edit
+								</DropdownItem>
+								<DropdownItem onClick={() => deleteData(user.id)}>
+									Delete
+								</DropdownItem>
+							</DropdownMenu>
+						</Dropdown>
+					</div>
+				);
+			default:
+				return cellValue;
+		}
 	}, []);
 
 	const topContent = React.useMemo(() => {
@@ -315,7 +479,7 @@ const CategoryDetails = () => {
 						></Select>
 					</label>
 				</div>
-				<BreadcrumbsContainer data={dataValue} />
+				{<BreadcrumbsContainer data={categoryId} />}
 			</div>
 		);
 	}, [
@@ -367,110 +531,44 @@ const CategoryDetails = () => {
 	}, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
 	return (
-		<div>
-			<h1 className='text-lg mt-3 mb-5'>
-				<span className='text-2xl'>{dataValue?.name}</span>
-			</h1>
-			<Table
-				aria-label='Example table with custom cells, pagination and sorting'
-				isHeaderSticky
-				bottomContent={bottomContent}
-				bottomContentPlacement='outside'
-				classNames={{
-					wrapper: 'max-h-[582px]',
-				}}
-				selectedKeys={selectedKeys}
-				sortDescriptor={sortDescriptor}
-				topContent={topContent}
-				topContentPlacement='outside'
-				onSelectionChange={setSelectedKeys}
-				onSortChange={setSortDescriptor}
-			>
-				<TableHeader columns={headerColumns}>
-					{column => (
-						<TableColumn
-							key={column.uid}
-							align={column.uid === 'actions' ? 'center' : 'start'}
-							allowsSorting={column.sortable}
-						>
-							{column.name}
-						</TableColumn>
-					)}
-				</TableHeader>
-				<TableBody>
+		<Table
+			aria-label='Example table with custom cells, pagination and sorting'
+			isHeaderSticky
+			bottomContent={bottomContent}
+			bottomContentPlacement='outside'
+			classNames={{
+				wrapper: 'max-h-[582px]',
+			}}
+			selectedKeys={selectedKeys}
+			sortDescriptor={sortDescriptor}
+			topContent={topContent}
+			topContentPlacement='outside'
+			onSelectionChange={setSelectedKeys}
+			onSortChange={setSortDescriptor}
+		>
+			<TableHeader columns={headerColumns}>
+				{column => (
+					<TableColumn
+						key={column.uid}
+						align={column.uid === 'actions' ? 'center' : 'start'}
+						allowsSorting={column.sortable}
+					>
+						{column.name}
+					</TableColumn>
+				)}
+			</TableHeader>
+			<TableBody emptyContent={'No users found'} items={sortedItems}>
+				{item => (
 					<TableRow
-						key={dataValue.id}
+						key={item.id}
 						className='border-b-2 mb-2 border-b-gray-500 mt-3'
 					>
-						<TableCell>
-							<div className='flex flex-col '>
-								<p className='text-bold  text-lg  capitalize text-default-400'>
-									<Image
-										src={
-											'https://www.usnews.com/cmsmedia/f5/4b/efa92f4c4dcebb2af996dfc4c01f/2023-lucid-air-1.jpg'
-										}
-										width={'180'}
-										height={'180'}
-										className='rounded-xl'
-										alt='image'
-									/>
-								</p>
-							</div>
-						</TableCell>
-						<TableCell>
-							<div className='flex flex-col'>
-								<p className='text-bold   text-lg capitalize text-default-400'>
-									{dataValue?.parent?.name || dataValue?.name}
-								</p>
-							</div>
-						</TableCell>
-						<TableCell>
-							<Chip
-								size='md'
-								variant={'faded'}
-								className='flex flex-col cursor-pointer  capitalize border-none gap-1  text-default-900 text-[50px]'
-							>
-								<Link
-									href={
-										dataValue?.parent
-											? `/categories/category-detail/${dataValue?.parent?.id}?`
-											: '/categories'
-									}
-								>
-									<p className='text-bold   relative top-1  text-lg capitalize text-default-400  flex  justify-center items-center'>
-										{dataValue?.parent === null ? '' : <FaArrowRight />}
-									</p>
-								</Link>
-							</Chip>
-						</TableCell>
-						<TableCell>
-							<div className='relative flex justify-end items-center gap-2'>
-								{contextHolder}
-								<Dropdown>
-									<DropdownTrigger>
-										<Button isIconOnly size='sm' variant='light'>
-											<VerticalDotsIcon
-												className='text-default-300'
-												width={100}
-												height={100}
-											/>
-										</Button>
-									</DropdownTrigger>
-									<DropdownMenu>
-										<DropdownItem>View</DropdownItem>
-										<DropdownItem>Edit</DropdownItem>
-										<DropdownItem onClick={() => deleteData(dataValue.id)}>
-											Delete
-										</DropdownItem>
-									</DropdownMenu>
-								</Dropdown>
-							</div>
-						</TableCell>
+						{columnKey => <TableCell>{renderCell(item, columnKey)}</TableCell>}
 					</TableRow>
-				</TableBody>
-			</Table>
-		</div>
+				)}
+			</TableBody>
+		</Table>
 	);
 };
 
-export default CategoryDetails;
+export default CategoryData;

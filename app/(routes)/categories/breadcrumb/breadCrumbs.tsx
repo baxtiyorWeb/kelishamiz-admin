@@ -1,38 +1,37 @@
+// Breadcrumb.tsx
 'use client';
+import { Breadcrumb, BreadcrumbLink } from '@chakra-ui/react';
+import { BreadcrumbItem } from '@nextui-org/react';
+import { useParams } from 'next/navigation';
+import React from 'react';
 
-import Link from 'next/link';
-
-interface BreadcrumbsProps {
-	data: any;
+interface BreadcrumbProps {
+	data: any; // Ma'lumotlar obyekti
 }
 
-const Breadcrumbs = ({ data }: BreadcrumbsProps) => {
-	function generateBreadcrumbs(node: any, breadcrumbs = []) {
-		if (!node) return breadcrumbs;
+const Breadcrumbs: React.FC<BreadcrumbProps> = ({ data }) => {
+	const breadcrumbsArr = [];
+	const { id } = useParams<{ id: string }>();
 
-		const updatedBreadcrumbs: any = [...breadcrumbs, node];
+	let currentData = data;
+	while (currentData) {
+		breadcrumbsArr.unshift(
+			<Breadcrumb fontWeight='medium' fontSize='sm'>
+				<BreadcrumbItem isCurrent={currentData.id == id}>
+					<BreadcrumbLink
+						href={`/categories/category-detail/${currentData.id}`}
+					>
+						{currentData.name}
+					</BreadcrumbLink>
+				</BreadcrumbItem>
+			</Breadcrumb>
+		);
 
-		return generateBreadcrumbs(node.parent, updatedBreadcrumbs);
+		currentData = currentData.parent;
 	}
 
-	const breadcrumbs = generateBreadcrumbs(data).reverse();
-
 	return (
-		<div>
-			{breadcrumbs.map((crumb: { id: number; name: string }, index) => (
-				<span className='text-lg font-bold text-sky-500' key={crumb?.id}>
-					<Link
-						className='hover:underline'
-						href={`/categories/category-detail/${crumb?.id}`}
-					>
-						{crumb?.name}
-						{index < breadcrumbs.length - 1 && (
-							<span className='text-blue-600'> &gt; </span>
-						)}
-					</Link>
-				</span>
-			))}
-		</div>
+		<div className='flex justify-start items-center'>{breadcrumbsArr}</div>
 	);
 };
 

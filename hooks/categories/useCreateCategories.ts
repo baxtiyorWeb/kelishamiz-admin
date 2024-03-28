@@ -6,6 +6,7 @@ const useCreateCategories = () => {
 	};
 	const createCategoryPost = async (
 		optionValue: string,
+		parentId: string,
 		uz: string,
 		en: string,
 		ru: string
@@ -20,7 +21,7 @@ const useCreateCategories = () => {
 				...lang,
 			},
 			image: 'file?.name',
-			parentId: 0,
+			parentId: parentId,
 			categoryPropertyForms: [
 				{
 					id: 0,
