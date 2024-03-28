@@ -1,6 +1,6 @@
 'use client';
-import { SearchIcon } from '@@/components/home/icons/SearchIcon';
-import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
+import { SearchIcon } from '@@/components/home/icons/SearchIcon'
+import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon'
 import {
 	Button,
 	Chip,
@@ -9,7 +9,6 @@ import {
 	DropdownMenu,
 	DropdownTrigger,
 	Input,
-	Link,
 	Pagination,
 	Selection,
 	SortDescriptor,
@@ -19,15 +18,16 @@ import {
 	TableColumn,
 	TableHeader,
 	TableRow,
-} from '@nextui-org/react';
-import { Select, message } from 'antd';
-import axios from 'axios';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
-import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer';
-import { columns } from './data';
+} from '@nextui-org/react'
+import { Select, message } from 'antd'
+import axios from 'axios'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { FaArrowRight } from 'react-icons/fa'
+import BreadcrumbsContainer from '../../breadcrumb/breadCrumbsContainer'
+import { columns } from './data'
 
 interface ICategory {
 	id: number;
@@ -109,6 +109,7 @@ const CategoryData = (props: IProps) => {
 					},
 				}
 			);
+			await getCategoryId();
 			setDataValue(data.data?.data?.content);
 
 			// return data.data?.data.reduce((result: any, value: any) => {
@@ -128,7 +129,6 @@ const CategoryData = (props: IProps) => {
 	};
 
 	useEffect(() => {
-		getCategoryId();
 		getCategoryList();
 	}, []);
 
@@ -405,6 +405,7 @@ const CategoryData = (props: IProps) => {
 				return (
 					<div className='relative flex justify-end items-center gap-2'>
 						{contextHolder}
+
 						<Dropdown>
 							<DropdownTrigger>
 								<Button isIconOnly size='sm' variant='light'>
@@ -449,36 +450,7 @@ const CategoryData = (props: IProps) => {
 
 					{isLoading && 'searching...'}
 				</div>
-				<div className='flex justify-start items-center'>
-					<span className='text-default-400 text-small mr-10 ml-3'>
-						Total {dataValue.length} users
-					</span>
-					<label className='flex items-center text-default-400 text-small'>
-						Rows per page:
-						<Select
-							className='bg-transparent outline-none text-default-400 text-small'
-							onChange={e => onRowsPerPageChange(e)}
-							options={[
-								{
-									value: '5',
-									label: '5',
-								},
-								{
-									value: '10',
-									label: '10',
-								},
-								{
-									value: '15',
-									label: '15',
-								},
-								{
-									value: '20',
-									label: '20',
-								},
-							]}
-						></Select>
-					</label>
-				</div>
+
 				{<BreadcrumbsContainer data={categoryId} />}
 			</div>
 		);
@@ -525,6 +497,36 @@ const CategoryData = (props: IProps) => {
 					>
 						Next
 					</Button>
+				</div>
+				<div className='flex justify-start items-center'>
+					<span className='text-default-400 text-small mr-10 ml-3'>
+						Total {dataValue.length} users
+					</span>
+					<label className='flex items-center text-default-400 text-small'>
+						Rows per page:
+						<Select
+							className='bg-transparent outline-none text-default-400 text-small'
+							onChange={e => onRowsPerPageChange(e)}
+							options={[
+								{
+									value: '5',
+									label: '5',
+								},
+								{
+									value: '10',
+									label: '10',
+								},
+								{
+									value: '15',
+									label: '15',
+								},
+								{
+									value: '20',
+									label: '20',
+								},
+							]}
+						></Select>
+					</label>
 				</div>
 			</div>
 		);

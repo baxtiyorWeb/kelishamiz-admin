@@ -1,6 +1,7 @@
 'use client';
 import { SearchIcon } from '@@/components/home/icons/SearchIcon';
 import { VerticalDotsIcon } from '@@/components/home/icons/VerticalDotsIcon';
+import { Select } from '@chakra-ui/react';
 import {
 	Button,
 	Chip,
@@ -19,11 +20,17 @@ import {
 	TableHeader,
 	TableRow,
 } from '@nextui-org/react';
-import { Select, message } from 'antd';
+import { message } from 'antd';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+	ChangeEvent,
+	Dispatch,
+	SetStateAction,
+	useEffect,
+	useState,
+} from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 import { columns } from './data';
 
@@ -192,7 +199,7 @@ const CategoryData = (props: IProps) => {
 	const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
 		new Set(INITIAL_VISIBLE_COLUMNS)
 	);
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [rowsPerPage, setRowsPerPage] = React.useState<ChangeEvent | any>(5);
 	const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
 		column: 'age',
 		direction: 'ascending',
@@ -416,13 +423,27 @@ const CategoryData = (props: IProps) => {
 
 					{isLoading && 'searching...'}
 				</div>
+			</div>
+		);
+	}, [
+		filterValue,
+		visibleColumns,
+		onSearchChange,
+		onRowsPerPageChange,
+		dataValue.length,
+		hasSearchFilter,
+	]);
+
+	const bottomContent = React.useMemo(() => {
+		return (
+			<div className='py-2 px-2 flex justify-start items-center border w-[80%]'>
 				<div className='flex justify-start items-center'>
 					<span className='text-default-400 text-small mr-10 ml-3'>
-						Total {dataValue.length} users
+						kategoriyalar {dataValue.length} ta
 					</span>
 					<label className='flex items-center text-default-400 text-small'>
-						Rows per page:
-						<Select
+						{rowsPerPage / rowsPerPage} dan {rowsPerPage ? rowsPerPage : '0'}
+						{/* <Select
 							className='bg-transparent outline-none text-default-400 text-small'
 							onChange={e => onRowsPerPageChange(e)}
 							options={[
@@ -443,28 +464,20 @@ const CategoryData = (props: IProps) => {
 									label: '20',
 								},
 							]}
-						></Select>
+						></Select> */}
+						<div className=' mr-3 ml-3'>
+							<Select
+								className='cursor-pointer bg-transparent w-[50px] h-[50px] outline-none text-default-400 text-small'
+								defaultValue={5}
+								onChange={e => setRowsPerPage(e.target.value)}
+							>
+								<option value='5'>5</option>
+								<option value='10'>10</option>
+								<option value='15'>15</option>
+							</Select>
+						</div>
 					</label>
 				</div>
-			</div>
-		);
-	}, [
-		filterValue,
-		visibleColumns,
-		onSearchChange,
-		onRowsPerPageChange,
-		dataValue.length,
-		hasSearchFilter,
-	]);
-
-	const bottomContent = React.useMemo(() => {
-		return (
-			<div className='py-2 px-2 flex justify-between items-center'>
-				<span className='w-[30%] text-small text-default-400'>
-					{selectedKeys === 'all'
-						? 'All items selected'
-						: `${selectedKeys.size} of ${filteredItems.length} selected`}
-				</span>
 				<Pagination
 					isCompact
 					showControls

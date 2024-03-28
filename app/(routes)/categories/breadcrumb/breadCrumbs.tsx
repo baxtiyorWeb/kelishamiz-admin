@@ -16,10 +16,14 @@ const Breadcrumbs: React.FC<BreadcrumbProps> = ({ data }) => {
 	let currentData = data;
 	while (currentData) {
 		breadcrumbsArr.unshift(
-			<Breadcrumb fontWeight='medium' fontSize='sm'>
+			<Breadcrumb fontWeight='medium' fontSize='sm' key={currentData.id}>
 				<BreadcrumbItem isCurrent={currentData.id == id}>
 					<BreadcrumbLink
-						href={`/categories/category-detail/${currentData.id}`}
+						href={
+							currentData.parent !== null
+								? `/categories/category-detail/${currentData.id}`
+								: '/categories'
+						}
 					>
 						{currentData.name}
 					</BreadcrumbLink>
